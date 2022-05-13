@@ -25,7 +25,7 @@
 #include "i2c.h"
 #include "spi.h"
 #include "usart.h"
-#include "usb.h"
+#include "usb_device.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -33,7 +33,7 @@
 #include "oled.h"
 #include "bmp.h"
 #include "key.h"
-#include "EventRecorder.h"
+#include "SDdriver.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -64,6 +64,96 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+void WritetoSD(BYTE write_buff[],uint8_t bufSize);
+char SD_FileName[] = "tw.csv";
+uint8_t WriteBuffer[] = "12,13,14\n";
+uint32_t c=0;
+//uint8_t test_sd =0;	//用于测试格式化
+uint8_t write_cnt =0;	//写SD卡次数
+
+
+
+
+void WritetoSD(BYTE write_buff[],uint8_t bufSize)
+{
+	FATFS fs;
+	FIL file;
+	uint8_t res=0;
+	UINT Bw;	
+	
+	res = SD_init();		//SD卡初始化
+	
+	if(res == 1)
+	{
+		OLED_ShowNum(0, 2,1, 4, 16);
+	}
+	else
+	{
+		OLED_ShowNum(0, 2,2, 4, 16);
+c=		SD_GetSectorCount();
+	}
+	
+	res=f_mount(&fs,"0:",1);		//挂载
+	
+//	if(test_sd == 0)		//用于测试格式化
+	if(res == FR_NO_FILESYSTEM)		//没有文件系统，格式化
+	{
+//		test_sd =1;				//用于测试格式化
+		OLED_ShowNum(0, 2,3, 4, 16);	
+		res = f_mkfs("", 0, 0);		//格式化sd卡
+		if(res == FR_OK)
+		{
+			OLED_ShowNum(0, 2,4, 4, 16);	
+			res = f_mount(NULL,"0:",1); 		//格式化后先取消挂载
+			res = f_mount(&fs,"0:",1);			//重新挂载	
+			if(res == FR_OK)
+			{
+				OLED_ShowNum(0, 2,51, 4, 16);
+			}	
+		}
+		else
+		{
+			OLED_ShowNum(0, 2,6, 4, 16);	
+		}
+	}
+	else if(res == FR_OK)
+	{
+		OLED_ShowNum(0, 2,7, 4, 16);	
+	}
+	else
+	{
+		OLED_ShowNum(0, 2,8, 4, 16);
+	}	
+	
+	res = f_open(&file,SD_FileName,FA_OPEN_ALWAYS |FA_WRITE);   //将打卡或创揭渊SD_FileName里内容为标题的文件，file指针指向该文件
+	if((res & FR_DENIED) == FR_DENIED)
+	{
+		OLED_ShowNum(0, 2,9, 4, 16);		
+	}
+	
+	f_lseek(&file, f_size(&file));//确保写词写入不会覆盖之前的数据
+	if(res == FR_OK)
+	{
+		OLED_ShowNum(0, 2,10, 4, 16);
+		res = f_write(&file,write_buff,bufSize,&Bw);		//写数据到SD卡
+		if(res == FR_OK)
+		{
+			OLED_ShowNum(0, 2,11, 4, 16);		
+		}
+		else
+		{
+			OLED_ShowNum(0, 2,12, 4, 16);
+		}		
+	}
+	else
+	{
+		OLED_ShowNum(0, 2,13, 4, 16);
+	}	
+	
+	f_close(&file);						//关闭文件		
+	f_mount(NULL,"0:",1);		 //取消挂载
+	
+}
 
 /* USER CODE END 0 */
 
@@ -74,7 +164,7 @@ void SystemClock_Config(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-uint16_t ADC_ConvertedValue=0;
+  uint16_t ADC_ConvertedValue=0;
 	uint8_t power_ConvertedValue=0;
   /* USER CODE END 1 */
 
@@ -101,8 +191,8 @@ uint16_t ADC_ConvertedValue=0;
   MX_FATFS_Init();
   MX_USART2_UART_Init();
   MX_DMA_Init();
-  MX_USB_PCD_Init();
   MX_ADC1_Init();
+  //MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
 	HAL_ADCEx_Calibration_Start(&hadc1);
   /* 启动AD转换并使能DMA传输和中断 */
@@ -111,6 +201,8 @@ uint16_t ADC_ConvertedValue=0;
   OLED_Init();
   OLED_Clear();
   OLED_DrawBMP(0, 0, 128, 8, BMP1);
+	WritetoSD(WriteBuffer,sizeof(WriteBuffer));	
+	MX_USB_DEVICE_Init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -122,9 +214,9 @@ uint16_t ADC_ConvertedValue=0;
     /* USER CODE BEGIN 3 */
     bsp_KeyScan();
     key_handler();
-		OLED_ShowNum(0, 2,ADC_ConvertedValue, 4, 16);
+		OLED_ShowNum(0, 4,ADC_ConvertedValue, 4, 16);
 		power_ConvertedValue=(ADC_ConvertedValue-3500)/4.14;
-		OLED_ShowNum(0, 4,power_ConvertedValue, 2, 16);
+		//OLED_ShowNum(0, 4,power_ConvertedValue, 2, 16);
 		HAL_ADC_Start_DMA(&hadc1,(uint32_t *)&ADC_ConvertedValue,sizeof(ADC_ConvertedValue)); 
 		HAL_Delay(2000);
   }
@@ -155,6 +247,7 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+
   /** Initializes the CPU, AHB and APB buses clocks
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
@@ -212,5 +305,3 @@ void assert_failed(uint8_t *file, uint32_t line)
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -60,6 +60,8 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define Buzzer_Pin GPIO_PIN_13
 #define Buzzer_GPIO_Port GPIOC
+#define SPI1_NSS_Pin GPIO_PIN_4
+#define SPI1_NSS_GPIO_Port GPIOA
 #define O1_Pin GPIO_PIN_11
 #define O1_GPIO_Port GPIOB
 #define O2_Pin GPIO_PIN_12
@@ -85,5 +87,3 @@ void Error_Handler(void);
 #endif
 
 #endif /* __MAIN_H */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
