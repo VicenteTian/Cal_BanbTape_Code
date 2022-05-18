@@ -6,6 +6,7 @@
  */
 #include "oled.h"
 #include "key.h"
+#include "adc.h"
 static KEY_T s_tBtn[KEY_COUNT];
 static KEY_FIFO_T s_tKey; /* 按键FIFO变量,结构体 */
 static void bsp_DetectKey(uint8_t i);
@@ -536,5 +537,19 @@ void key_handler(void)
 
 			break;
 		}
+	}
+}
+
+void power_check(uint16_t *tcount)
+{
+	static uint16_t ADC_ConvertedValue = 0;
+	uint8_t power_ConvertedValue = 0;
+	if (*tcount > 2000)
+	{
+		OLED_ShowNum(0, 4, ADC_ConvertedValue, 4, 12);
+		power_ConvertedValue = (ADC_ConvertedValue - 3500) / 4.14;
+		OLED_ShowNum(1, 6, power_ConvertedValue, 2, 12);
+		HAL_ADC_Start_DMA(&hadc1, (uint32_t *)&ADC_ConvertedValue, sizeof(ADC_ConvertedValue));
+		*tcount = 0;
 	}
 }

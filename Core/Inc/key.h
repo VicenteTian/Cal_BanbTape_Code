@@ -185,4 +185,5 @@ void bsp_SetKeyParam(uint8_t _ucKeyID, uint16_t _LongTime, uint8_t _RepeatSpeed)
 void bsp_ClearKey(void);
 void key_handler(void);
 void beep(void);
+void power_check(uint16_t *tcount);
 #endif

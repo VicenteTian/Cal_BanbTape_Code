@@ -63,16 +63,14 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-__IO  uint16_t time_count = 0;
-void WritetoSD(BYTE write_buff[], uint8_t bufSize);
-char SD_FileName[] = "tw.csv";
-uint8_t WriteBuffer[] = "15,13,14\n";
+uint16_t time_count = 0;
+void WritetoSD(void);
 uint32_t c = 0;
-// uint8_t test_sd =0;	//用于测试格式化
-uint8_t write_cnt = 0; //写SD卡次数
 
-void WritetoSD(BYTE write_buff[], uint8_t bufSize)
+void WritetoSD(void)
 {
+	char SD_FileName[] = "tw.csv";
+uint8_t WriteBuffer[] = "15,13,14\n";
   FATFS fs;
   FIL file;
   uint8_t res = 0;
@@ -131,7 +129,7 @@ void WritetoSD(BYTE write_buff[], uint8_t bufSize)
   if (res == FR_OK)
   {
     OLED_ShowNum(0, 2, 10, 2, 16);
-    res = f_write(&file, write_buff, bufSize, &Bw); //写数据到SD卡
+    res = f_write(&file, WriteBuffer, sizeof(WriteBuffer), &Bw); //写数据到SD卡
     if (res == FR_OK)
     {
       OLED_ShowNum(0, 2, 11, 2, 16);
@@ -153,13 +151,13 @@ void WritetoSD(BYTE write_buff[], uint8_t bufSize)
 /* USER CODE END 0 */
 
 /**
- * @brief  The application entry point.
- * @retval int
- */
+  * @brief  The application entry point.
+  * @retval int
+  */
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-uint16_t ADC_ConvertedValue = 0;
+
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -186,16 +184,15 @@ uint16_t ADC_ConvertedValue = 0;
   MX_USART2_UART_Init();
   MX_DMA_Init();
   MX_ADC1_Init();
-  // MX_USB_DEVICE_Init();
+  MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
   HAL_ADCEx_Calibration_Start(&hadc1);
   /* 启动AD转换并使能DMA传输和中断 */
-  HAL_ADC_Start_DMA(&hadc1, (uint32_t *)&ADC_ConvertedValue, sizeof(ADC_ConvertedValue));
   bsp_InitKeyVar();
   beep();
   OLED_Init();
   OLED_Clear();
-  WritetoSD(WriteBuffer, sizeof(WriteBuffer));
+  WritetoSD();
   MX_USB_DEVICE_Init();
   /* USER CODE END 2 */
 
@@ -208,22 +205,15 @@ uint16_t ADC_ConvertedValue = 0;
     /* USER CODE BEGIN 3 */
     bsp_KeyScan();
     key_handler();
-    if (time_count>1000)
-    {
-      OLED_ShowNum(0, 4, ADC_ConvertedValue, 4, 16);
-      // power_ConvertedValue = (ADC_ConvertedValue - 3500) / 4.14;
-      // OLED_ShowNum(1, 6, power_ConvertedValue, 2, 16);
-      HAL_ADC_Start_DMA(&hadc1, (uint32_t *)&ADC_ConvertedValue, sizeof(ADC_ConvertedValue));
-			time_count=0;
-    }
+    power_check(&time_count);
   }
   /* USER CODE END 3 */
 }
 
 /**
- * @brief System Clock Configuration
- * @retval None
- */
+  * @brief System Clock Configuration
+  * @retval None
+  */
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
@@ -231,8 +221,8 @@ void SystemClock_Config(void)
   RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
   /** Initializes the RCC Oscillators according to the specified parameters
-   * in the RCC_OscInitTypeDef structure.
-   */
+  * in the RCC_OscInitTypeDef structure.
+  */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
@@ -246,8 +236,9 @@ void SystemClock_Config(void)
   }
 
   /** Initializes the CPU, AHB and APB buses clocks
-   */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
+  */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
@@ -257,7 +248,7 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC | RCC_PERIPHCLK_USB;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC|RCC_PERIPHCLK_USB;
   PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV6;
   PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLL_DIV1_5;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
@@ -274,9 +265,9 @@ void HAL_SYSTICK_Callback(void)
 /* USER CODE END 4 */
 
 /**
- * @brief  This function is executed in case of error occurrence.
- * @retval None
- */
+  * @brief  This function is executed in case of error occurrence.
+  * @retval None
+  */
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
@@ -288,14 +279,14 @@ void Error_Handler(void)
   /* USER CODE END Error_Handler_Debug */
 }
 
-#ifdef USE_FULL_ASSERT
+#ifdef  USE_FULL_ASSERT
 /**
- * @brief  Reports the name of the source file and the source line number
- *         where the assert_param error has occurred.
- * @param  file: pointer to the source file name
- * @param  line: assert_param error line source number
- * @retval None
- */
+  * @brief  Reports the name of the source file and the source line number
+  *         where the assert_param error has occurred.
+  * @param  file: pointer to the source file name
+  * @param  line: assert_param error line source number
+  * @retval None
+  */
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
