@@ -12,7 +12,7 @@
 #include "gpio.h"
 #define OLED_MODE 0
 #define SIZE 8
-#define XLevelL 0x00
+#define XLevelL 0x02
 #define XLevelH 0x10
 #define Max_Column 128
 #define Max_Row 64

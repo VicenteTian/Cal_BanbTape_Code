@@ -48,8 +48,8 @@ void fill_picture(unsigned char fill_Data)
 	for (m = 0; m < 8; m++)
 	{
 		OLED_WR_Byte(0xb0 + m, 0); // page0-page1
-		OLED_WR_Byte(0x00, 0);	   // low column start address
-		OLED_WR_Byte(0x10, 0);	   // high column start address
+		OLED_WR_Byte(XLevelL, 0);	   // low column start address
+		OLED_WR_Byte(XLevelH, 0);	   // high column start address
 		for (n = 0; n < 128; n++)
 		{
 			OLED_WR_Byte(fill_Data, 1);
@@ -86,8 +86,8 @@ void OLED_Clear(void)
 	for (i = 0; i < 8; i++)
 	{
 		OLED_WR_Byte(0xb0 + i, OLED_CMD); //设置页地址（0~7）
-		OLED_WR_Byte(0x00, OLED_CMD);	  //设置显示位置—列低地址
-		OLED_WR_Byte(0x10, OLED_CMD);	  //设置显示位置—列高地址
+		OLED_WR_Byte(XLevelL, OLED_CMD);	  //设置显示位置—列低地址
+		OLED_WR_Byte(XLevelH, OLED_CMD);	  //设置显示位置—列高地址
 		for (n = 0; n < 128; n++)
 			OLED_WR_Byte(0, OLED_DATA);
 	} //更新显示
@@ -98,8 +98,8 @@ void OLED_On(void)
 	for (i = 0; i < 8; i++)
 	{
 		OLED_WR_Byte(0xb0 + i, OLED_CMD); //设置页地址（0~7）
-		OLED_WR_Byte(0x00, OLED_CMD);	  //设置显示位置—列低地址
-		OLED_WR_Byte(0x10, OLED_CMD);	  //设置显示位置—列高地址
+		OLED_WR_Byte(XLevelL, OLED_CMD);	  //设置显示位置—列低地址
+		OLED_WR_Byte(XLevelH, OLED_CMD);	  //设置显示位置—列高地址
 		for (n = 0; n < 128; n++)
 			OLED_WR_Byte(1, OLED_DATA);
 	} //更新显示
@@ -224,23 +224,10 @@ void OLED_DrawBMP(unsigned char x0, unsigned char y0, unsigned char x1, unsigned
 //初始化SSD1306
 void OLED_Init(void)
 {
-
-	GPIO_InitTypeDef GPIO_InitStruct = {0};
-	__HAL_RCC_USART1_CLK_DISABLE(); //关闭UART1的时钟
-	__HAL_RCC_GPIOA_CLK_ENABLE();
-	GPIO_InitStruct.Pin = GPIO_PIN_3 | GPIO_PIN_2;
-	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-	GPIO_InitStruct.Pull = GPIO_PULLUP;
-	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_SET);
-	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_SET);
-	HAL_Delay(200);
-
 	OLED_WR_Byte(0xAE, OLED_CMD); //--display off
 	OLED_WR_Byte(0x00, OLED_CMD); //---set low column address
-	OLED_WR_Byte(0x10, OLED_CMD); //---set high column address
-	OLED_WR_Byte(0x40, OLED_CMD); //--set start line address
+	OLED_WR_Byte(XLevelL, OLED_CMD); //---set high column address
+	OLED_WR_Byte(XLevelH, OLED_CMD); //--set start line address
 	OLED_WR_Byte(0xB0, OLED_CMD); //--set page address
 	OLED_WR_Byte(0x81, OLED_CMD); // contract control
 	OLED_WR_Byte(0xFF, OLED_CMD); //--128
