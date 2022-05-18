@@ -2,7 +2,7 @@
 
 extern uint8_t SD_TYPE;
 
-//SD¿¨ÀàÐÍ
+//SDï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 #define ERR     	0x00
 #define MMC				0x01
 #define V1				0x02
@@ -13,30 +13,30 @@ extern uint8_t SD_TYPE;
 #define MSD_BLOCKSIZE			 512
 
 
-//CMD¶¨Òå
-#define CMD0    0       //¿¨¸´Î»
+//CMDï¿½ï¿½ï¿½ï¿½
+#define CMD0    0       //ï¿½ï¿½ï¿½ï¿½Î»
 #define CMD1    1
-#define CMD8    8       //ÃüÁî8 £¬SEND_IF_COND
-#define CMD9    9       //ÃüÁî9 £¬¶ÁCSDÊý¾Ý
-#define CMD10   10      //ÃüÁî10£¬¶ÁCIDÊý¾Ý
-#define CMD12   12      //ÃüÁî12£¬Í£Ö¹Êý¾Ý´«Êä
-#define CMD16   16      //ÃüÁî16£¬ÉèÖÃSectorSize Ó¦·µ»Ø0x00
-#define CMD17   17      //ÃüÁî17£¬¶Ásector
-#define CMD18   18      //ÃüÁî18£¬¶ÁMulti sector
-#define CMD23   23      //ÃüÁî23£¬ÉèÖÃ¶àsectorÐ´ÈëÇ°Ô¤ÏÈ²Á³ýN¸öblock
-#define CMD24   24      //ÃüÁî24£¬Ð´sector
-#define CMD25   25      //ÃüÁî25£¬Ð´Multi sector
-#define CMD41   41      //ÃüÁî41£¬Ó¦·µ»Ø0x00
-#define CMD55   55      //ÃüÁî55£¬Ó¦·µ»Ø0x01
-#define CMD58   58      //ÃüÁî58£¬¶ÁOCRÐÅÏ¢
-#define CMD59   59      //ÃüÁî59£¬Ê¹ÄÜ/½ûÖ¹CRC£¬Ó¦·µ»Ø0x00
+#define CMD8    8       //ï¿½ï¿½ï¿½ï¿½8 ï¿½ï¿½SEND_IF_COND
+#define CMD9    9       //ï¿½ï¿½ï¿½ï¿½9 ï¿½ï¿½ï¿½ï¿½CSDï¿½ï¿½ï¿½ï¿½
+#define CMD10   10      //ï¿½ï¿½ï¿½ï¿½10ï¿½ï¿½ï¿½ï¿½CIDï¿½ï¿½ï¿½ï¿½
+#define CMD12   12      //ï¿½ï¿½ï¿½ï¿½12ï¿½ï¿½Í£Ö¹ï¿½ï¿½ï¿½Ý´ï¿½ï¿½ï¿½
+#define CMD16   16      //ï¿½ï¿½ï¿½ï¿½16ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½SectorSize Ó¦ï¿½ï¿½ï¿½ï¿½0x00
+#define CMD17   17      //ï¿½ï¿½ï¿½ï¿½17ï¿½ï¿½ï¿½ï¿½sector
+#define CMD18   18      //ï¿½ï¿½ï¿½ï¿½18ï¿½ï¿½ï¿½ï¿½Multi sector
+#define CMD23   23      //ï¿½ï¿½ï¿½ï¿½23ï¿½ï¿½ï¿½ï¿½ï¿½Ã¶ï¿½sectorÐ´ï¿½ï¿½Ç°Ô¤ï¿½È²ï¿½ï¿½ï¿½Nï¿½ï¿½block
+#define CMD24   24      //ï¿½ï¿½ï¿½ï¿½24ï¿½ï¿½Ð´sector
+#define CMD25   25      //ï¿½ï¿½ï¿½ï¿½25ï¿½ï¿½Ð´Multi sector
+#define CMD41   41      //ï¿½ï¿½ï¿½ï¿½41ï¿½ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½0x00
+#define CMD55   55      //ï¿½ï¿½ï¿½ï¿½55ï¿½ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½0x01
+#define CMD58   58      //ï¿½ï¿½ï¿½ï¿½58ï¿½ï¿½ï¿½ï¿½OCRï¿½ï¿½Ï¢
+#define CMD59   59      //ï¿½ï¿½ï¿½ï¿½59ï¿½ï¿½Ê¹ï¿½ï¿½/ï¿½ï¿½Ö¹CRCï¿½ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½0x00
 
-//Êý¾ÝÐ´Èë»ØÓ¦×ÖÒâÒå
+//ï¿½ï¿½ï¿½ï¿½Ð´ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 #define MSD_DATA_OK                0x05
 #define MSD_DATA_CRC_ERROR         0x0B
 #define MSD_DATA_WRITE_ERROR       0x0D
 #define MSD_DATA_OTHER_ERROR       0xFF
-//SD¿¨»ØÓ¦±ê¼Ç×Ö
+//SDï¿½ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½ï¿½
 #define MSD_RESPONSE_NO_ERROR      0x00
 #define MSD_IN_IDLE_STATE          0x01
 #define MSD_ERASE_RESET            0x02
@@ -141,7 +141,7 @@ uint8_t 		SD_WriteDisk(uint8_t*buf,uint32_t sector,uint8_t cnt);
 
 void SPI_setspeed(uint8_t speed);
 uint8_t spi_readwrite(uint8_t Txdata);
-
+void WritetoSD(uint8_t write_buff[], uint8_t bufSize);
 
 
 

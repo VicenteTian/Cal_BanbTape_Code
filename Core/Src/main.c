@@ -64,100 +64,16 @@ void SystemClock_Config(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 uint16_t time_count = 0;
-void WritetoSD(void);
-uint32_t c = 0;
-
-void WritetoSD(void)
-{
-	char SD_FileName[] = "tw.csv";
-uint8_t WriteBuffer[] = "15,13,14\n";
-  FATFS fs;
-  FIL file;
-  uint8_t res = 0;
-  UINT Bw;
-
-  res = SD_init(); // SD卡初始化
-
-  if (res == 1)
-  {
-    OLED_ShowNum(0, 2, 1, 2, 16);
-  }
-  else
-  {
-    OLED_ShowNum(0, 2, 2, 2, 16);
-    c = SD_GetSectorCount();
-  }
-
-  res = f_mount(&fs, "0:", 1); //挂载
-  //	if(test_sd == 0)		//用于测试格式化
-  if (res == FR_NO_FILESYSTEM) //没有文件系统，格式化
-  {
-    //		test_sd =1;				//用于测试格式化
-    OLED_ShowNum(0, 2, 3, 2, 16);
-    res = f_mkfs("", 0, 0); //格式化sd卡
-    if (res == FR_OK)
-    {
-      OLED_ShowNum(0, 2, 4, 2, 16);
-      res = f_mount(NULL, "0:", 1); //格式化后先取消挂载
-      res = f_mount(&fs, "0:", 1);  //重新挂载
-      if (res == FR_OK)
-      {
-        OLED_ShowNum(0, 2, 51, 2, 16);
-      }
-    }
-    else
-    {
-      OLED_ShowNum(0, 2, 6, 2, 16);
-    }
-  }
-  else if (res == FR_OK)
-  {
-    OLED_ShowNum(0, 2, 7, 2, 16);
-  }
-  else
-  {
-    OLED_ShowNum(0, 2, 8, 2, 16);
-  }
-
-  res = f_open(&file, SD_FileName, FA_OPEN_ALWAYS | FA_WRITE); //将打卡或创揭渊SD_FileName里内容为标题的文件，file指针指向该文件
-  if ((res & FR_DENIED) == FR_DENIED)
-  {
-    OLED_ShowNum(0, 2, 9, 2, 16);
-  }
-
-  f_lseek(&file, f_size(&file)); //确保写词写入不会覆盖之前的数据
-  if (res == FR_OK)
-  {
-    OLED_ShowNum(0, 2, 10, 2, 16);
-    res = f_write(&file, WriteBuffer, sizeof(WriteBuffer), &Bw); //写数据到SD卡
-    if (res == FR_OK)
-    {
-      OLED_ShowNum(0, 2, 11, 2, 16);
-    }
-    else
-    {
-      OLED_ShowNum(0, 2, 12, 2, 16);
-    }
-  }
-  else
-  {
-    OLED_ShowNum(0, 2, 13, 2, 16);
-  }
-
-  f_close(&file);         //关闭文件
-  f_mount(NULL, "0:", 1); //取消挂载
-}
-
 /* USER CODE END 0 */
 
 /**
-  * @brief  The application entry point.
-  * @retval int
-  */
+ * @brief  The application entry point.
+ * @retval int
+ */
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+uint8_t WriteBuffer[] = "12,06\n";
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -184,16 +100,17 @@ int main(void)
   MX_USART2_UART_Init();
   MX_DMA_Init();
   MX_ADC1_Init();
-  MX_USB_DEVICE_Init();
+  //MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
-  HAL_ADCEx_Calibration_Start(&hadc1);
-  /* 启动AD转换并使能DMA传输和中断 */
-  bsp_InitKeyVar();
   beep();
   OLED_Init();
   OLED_Clear();
-  WritetoSD();
-  MX_USB_DEVICE_Init();
+  OLED_ShowString(0,0,"NO SD",16);
+  SD_init(); // SD卡初始化
+  WritetoSD(WriteBuffer,sizeof(WriteBuffer));
+  HAL_ADCEx_Calibration_Start(&hadc1); /* 启动AD转换并使能DMA传输和中断 */
+  bsp_InitKeyVar();
+	MX_USB_DEVICE_Init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -211,9 +128,9 @@ int main(void)
 }
 
 /**
-  * @brief System Clock Configuration
-  * @retval None
-  */
+ * @brief System Clock Configuration
+ * @retval None
+ */
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
@@ -221,8 +138,8 @@ void SystemClock_Config(void)
   RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
   /** Initializes the RCC Oscillators according to the specified parameters
-  * in the RCC_OscInitTypeDef structure.
-  */
+   * in the RCC_OscInitTypeDef structure.
+   */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
@@ -236,9 +153,8 @@ void SystemClock_Config(void)
   }
 
   /** Initializes the CPU, AHB and APB buses clocks
-  */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+   */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
@@ -248,7 +164,7 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC|RCC_PERIPHCLK_USB;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC | RCC_PERIPHCLK_USB;
   PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV6;
   PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLL_DIV1_5;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
@@ -265,9 +181,9 @@ void HAL_SYSTICK_Callback(void)
 /* USER CODE END 4 */
 
 /**
-  * @brief  This function is executed in case of error occurrence.
-  * @retval None
-  */
+ * @brief  This function is executed in case of error occurrence.
+ * @retval None
+ */
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
@@ -279,14 +195,14 @@ void Error_Handler(void)
   /* USER CODE END Error_Handler_Debug */
 }
 
-#ifdef  USE_FULL_ASSERT
+#ifdef USE_FULL_ASSERT
 /**
-  * @brief  Reports the name of the source file and the source line number
-  *         where the assert_param error has occurred.
-  * @param  file: pointer to the source file name
-  * @param  line: assert_param error line source number
-  * @retval None
-  */
+ * @brief  Reports the name of the source file and the source line number
+ *         where the assert_param error has occurred.
+ * @param  file: pointer to the source file name
+ * @param  line: assert_param error line source number
+ * @retval None
+ */
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */

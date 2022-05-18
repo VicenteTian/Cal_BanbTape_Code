@@ -544,11 +544,11 @@ void power_check(uint16_t *tcount)
 {
 	static uint16_t ADC_ConvertedValue = 0;
 	uint8_t power_ConvertedValue = 0;
-	if (*tcount > 2000)
+	if (*tcount > 1000)
 	{
-		OLED_ShowNum(0, 4, ADC_ConvertedValue, 4, 12);
+		//OLED_ShowNum(116, 0, ADC_ConvertedValue, 4, 12);
 		power_ConvertedValue = (ADC_ConvertedValue - 3500) / 4.14;
-		OLED_ShowNum(1, 6, power_ConvertedValue, 2, 12);
+		OLED_ShowNum(116, 0, power_ConvertedValue, 2, 12);
 		HAL_ADC_Start_DMA(&hadc1, (uint32_t *)&ADC_ConvertedValue, sizeof(ADC_ConvertedValue));
 		*tcount = 0;
 	}
