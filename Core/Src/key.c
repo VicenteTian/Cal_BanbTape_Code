@@ -4,7 +4,7 @@
  * @Description:
  * @Version: V1.0
  */
- #include "oled.h"
+#include "oled.h"
 #include "key.h"
 static KEY_T s_tBtn[KEY_COUNT];
 static KEY_FIFO_T s_tKey; /* 按键FIFO变量,结构体 */
@@ -30,7 +30,10 @@ static uint8_t IsKeyDown0(void) // 0
 	O3_H;
 	O4_L;
 	if ((GPIOA->IDR & I3_Pin) == 0)
+	{
+		beep();
 		return 1;
+	}
 	else
 		return 0;
 }
@@ -41,7 +44,10 @@ static uint8_t IsKeyDown1(void)
 	O3_H;
 	O4_H;
 	if ((GPIOA->IDR & I2_Pin) == 0)
+	{
+		beep();
 		return 1;
+	}
 	else
 		return 0;
 }
@@ -52,7 +58,10 @@ static uint8_t IsKeyDown2(void)
 	O3_H;
 	O4_H;
 	if ((GPIOA->IDR & I3_Pin) == 0)
+	{
+		beep();
 		return 1;
+	}
 	else
 		return 0;
 }
@@ -63,7 +72,10 @@ static uint8_t IsKeyDown3(void)
 	O3_H;
 	O4_H;
 	if ((GPIOA->IDR & I4_Pin) == 0)
+	{
+		beep();
 		return 1;
+	}
 	else
 		return 0;
 }
@@ -74,7 +86,10 @@ static uint8_t IsKeyDown4(void)
 	O3_H;
 	O4_H;
 	if ((GPIOA->IDR & I2_Pin) == 0)
+	{
+		beep();
 		return 1;
+	}
 	else
 		return 0;
 }
@@ -85,7 +100,10 @@ static uint8_t IsKeyDown5(void)
 	O3_H;
 	O4_H;
 	if ((GPIOA->IDR & I3_Pin) == 0)
+	{
+		beep();
 		return 1;
+	}
 	else
 		return 0;
 }
@@ -96,7 +114,10 @@ static uint8_t IsKeyDown6(void)
 	O3_H;
 	O4_H;
 	if ((GPIOA->IDR & I4_Pin) == 0)
+	{
+		beep();
 		return 1;
+	}
 	else
 		return 0;
 }
@@ -107,7 +128,10 @@ static uint8_t IsKeyDown7(void)
 	O3_L;
 	O4_H;
 	if ((GPIOA->IDR & I2_Pin) == 0)
+	{
+		beep();
 		return 1;
+	}
 	else
 		return 0;
 }
@@ -118,7 +142,10 @@ static uint8_t IsKeyDown8(void)
 	O3_L;
 	O4_H;
 	if ((GPIOA->IDR & I3_Pin) == 0)
+	{
+		beep();
 		return 1;
+	}
 	else
 		return 0;
 }
@@ -129,7 +156,10 @@ static uint8_t IsKeyDown9(void)
 	O3_L;
 	O4_H;
 	if ((GPIOA->IDR & I4_Pin) == 0)
+	{
+		beep();
 		return 1;
+	}
 	else
 		return 0;
 }
@@ -140,7 +170,10 @@ static uint8_t IsKeyDown10(void) // point .
 	O3_H;
 	O4_L;
 	if ((GPIOA->IDR & I2_Pin) == 0)
+	{
+		beep();
 		return 1;
+	}
 	else
 		return 0;
 }
@@ -151,7 +184,10 @@ static uint8_t IsKeyDown11(void) //#
 	O3_H;
 	O4_L;
 	if ((GPIOA->IDR & I4_Pin) == 0)
+	{
+		beep();
 		return 1;
+	}
 	else
 		return 0;
 }
@@ -162,7 +198,10 @@ static uint8_t IsKeyDown12(void) //<-
 	O3_H;
 	O4_H;
 	if ((GPIOB->IDR & I1_Pin) == 0)
+	{
+		beep();
 		return 1;
+	}
 	else
 		return 0;
 }
@@ -173,7 +212,10 @@ static uint8_t IsKeyDown13(void) // F1
 	O3_H;
 	O4_H;
 	if ((GPIOB->IDR & I1_Pin) == 0)
+	{
+		beep();
 		return 1;
+	}
 	else
 		return 0;
 }
@@ -452,60 +494,46 @@ void key_handler(void)
 		switch (ucKeyCode)
 		{
 		case KEY_0_DOWN:
-			OLED_ShowNum(0, 2, 0, 3, 16);
-			beep();
+
 			break;
 		case KEY_1_DOWN:
-			OLED_ShowNum(0, 2, 1, 3, 16);
-			beep();
+
 			break;
 		case KEY_2_DOWN:
-			OLED_ShowNum(0, 2, 2, 3, 16);
-			beep();
+
 			break;
 		case KEY_3_DOWN:
-			OLED_ShowNum(0, 2, 3, 3, 16);
-			beep();
+
 			break;
 		case KEY_4_DOWN:
-			OLED_ShowNum(0, 2, 4, 3, 16);
-			beep();
+
 			break;
 		case KEY_5_DOWN:
-			OLED_ShowNum(0, 2, 5, 3, 16);
-			beep();
+
 			break;
 		case KEY_6_DOWN:
-			OLED_ShowNum(0, 2, 6, 3, 16);
-			beep();
+
 			break;
 		case KEY_7_DOWN:
-			OLED_ShowNum(0, 2, 7, 3, 16);
-			beep();
+
 			break;
 		case KEY_8_DOWN:
-			OLED_ShowNum(0, 2, 8, 3, 16);
-			beep();
+
 			break;
 		case KEY_9_DOWN:
-			OLED_ShowNum(0, 2, 9, 3, 16);
-			beep();
+
 			break;
 		case KEY_10_DOWN:
-			OLED_ShowNum(0, 2, 10, 3, 16);
-			beep();
+
 			break;
 		case KEY_11_DOWN:
-			OLED_ShowNum(0, 2, 11, 3, 16);
-			beep();
+
 			break;
 		case KEY_12_DOWN:
-			OLED_ShowNum(0, 2, 12, 3, 16);
-			beep();
+
 			break;
 		case KEY_13_DOWN:
-			OLED_ShowNum(0, 2, 13, 3, 16);
-			beep();
+
 			break;
 		}
 	}
