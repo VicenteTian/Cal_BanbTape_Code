@@ -1,3 +1,9 @@
+/*
+ * @Author: Tian Wei
+ * @Date: 2022-05-18 13:41:16
+ * @Description: 
+ * @Version: V1.0
+ */
 #ifndef __OLED_H
 #define __OLED_H
 #include "stm32f1xx_hal.h"
@@ -33,6 +39,4 @@ void OLED_ShowCHinese(uint8_t x, uint8_t y, uint8_t no);
 void OLED_DrawBMP(unsigned char x0, unsigned char y0, unsigned char x1, unsigned char y1, unsigned char BMP[]);
 void fill_picture(unsigned char fill_Data);
 void Picture(void);
-void Delay_1ms(unsigned int Del_1ms);
-void Delay_50ms(unsigned int Del_50ms);
 #endif
