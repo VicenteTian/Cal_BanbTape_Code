@@ -1,24 +1,3 @@
-//////////////////////////////////////////////////////////////////////////////////
-//本程序只供学习使用，未经作者许可，不得用于其它任何用途
-//中景园电子
-//店铺地址：http://shop73023976.taobao.com/?spm=2013.1.0.0.M4PqC2
-//
-//  文 件 名   : main.c
-//  版 本 号   : v2.0
-//  作    者   : Evk123
-//  生成日期   : 2014-0101
-//  最近修改   :
-//  功能描述   : 0.69寸OLED 接口演示例程(STM32F103ZE系列IIC)
-//              说明:
-//              ----------------------------------------------------------------
-//              GND   电源地
-//              VCC   接5V或3.3v电源
-//              SCL   接PA3（SCL）
-//              SDA   接PA2（SDA）
-//              ----------------------------------------------------------------
-//Copyright(C) 中景园电子2014/3/16
-//All rights reserved
-//////////////////////////////////////////////////////////////////////////////////
 #ifndef __OLED_H
 #define __OLED_H
 #include "stm32f1xx_hal.h"
@@ -34,12 +13,11 @@
 #define Brightness 0xFF
 #define X_WIDTH 128
 #define Y_WIDTH 64
-//是否启用OLED 屏幕
-#define Oled_Enable 1
-#define OLED_CMD 0  //写命令
-#define OLED_DATA 1 //写数据
 
-//OLED控制用函数
+#define Oled_Enable 1
+#define OLED_CMD 0  
+#define OLED_DATA 1 
+#define OLED_ADDR 0x7A  //0x78
 void OLED_WR_Byte(unsigned dat, unsigned cmd);
 void OLED_Display_On(void);
 void OLED_Display_Off(void);

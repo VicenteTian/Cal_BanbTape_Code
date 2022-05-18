@@ -192,12 +192,13 @@ int main(void)
   MX_USART2_UART_Init();
   MX_DMA_Init();
   MX_ADC1_Init();
-  //MX_USB_DEVICE_Init();
+ // MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
 	HAL_ADCEx_Calibration_Start(&hadc1);
   /* 启动AD转换并使能DMA传输和中断 */
   HAL_ADC_Start_DMA(&hadc1,(uint32_t *)&ADC_ConvertedValue,sizeof(ADC_ConvertedValue)); 
   bsp_InitKeyVar();
+	beep();
   OLED_Init();
   OLED_Clear();
   OLED_DrawBMP(0, 0, 128, 8, BMP1);
@@ -214,11 +215,11 @@ int main(void)
     /* USER CODE BEGIN 3 */
     bsp_KeyScan();
     key_handler();
-		OLED_ShowNum(0, 4,ADC_ConvertedValue, 4, 16);
-		power_ConvertedValue=(ADC_ConvertedValue-3500)/4.14;
+		//OLED_ShowNum(0, 4,ADC_ConvertedValue, 4, 16);
+		//power_ConvertedValue=(ADC_ConvertedValue-3500)/4.14;
 		//OLED_ShowNum(0, 4,power_ConvertedValue, 2, 16);
-		HAL_ADC_Start_DMA(&hadc1,(uint32_t *)&ADC_ConvertedValue,sizeof(ADC_ConvertedValue)); 
-		HAL_Delay(2000);
+		//HAL_ADC_Start_DMA(&hadc1,(uint32_t *)&ADC_ConvertedValue,sizeof(ADC_ConvertedValue)); 
+		//HAL_Delay(20);
   }
   /* USER CODE END 3 */
 }

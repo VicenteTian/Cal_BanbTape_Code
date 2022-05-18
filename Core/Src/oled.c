@@ -30,7 +30,7 @@ void OLED_WR_Byte(unsigned dat, unsigned cmd)
 		ucMode[0] = 0; //命令
 	}
 	ucMode[1] = dat;
-	while (HAL_I2C_Master_Transmit(&hi2c1, 0x78, ucMode, 2, 10000) != HAL_OK) //从机地址0x78 ，超时时间为10s
+	while (HAL_I2C_Master_Transmit(&hi2c1, OLED_ADDR, ucMode, 2, 10000) != HAL_OK) //从机地址0x78 ，超时时间为10s
 	{																		   //HAL开头的都为库函数
 		if (HAL_I2C_GetError(&hi2c1) != HAL_I2C_ERROR_AF)
 		{

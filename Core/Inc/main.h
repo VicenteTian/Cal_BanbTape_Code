@@ -78,6 +78,10 @@ void Error_Handler(void);
 #define I3_GPIO_Port GPIOA
 #define I4_Pin GPIO_PIN_10
 #define I4_GPIO_Port GPIOA
+#define P_State_Pin GPIO_PIN_4
+#define P_State_GPIO_Port GPIOB
+#define P_Hold_Pin GPIO_PIN_5
+#define P_Hold_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
