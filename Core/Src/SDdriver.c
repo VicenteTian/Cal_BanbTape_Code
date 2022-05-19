@@ -465,7 +465,7 @@ void SPI_setspeed(uint8_t speed)
 	hspi1.Init.BaudRatePrescaler = speed;
 }
 /*   APP               */
-void WritetoSD(uint8_t write_buff[], uint8_t bufSize)
+void WritetoSD(char file_name[],uint8_t write_buff[], uint8_t bufSize)
 {
 	FATFS fs;
 	FIL file;
@@ -504,7 +504,7 @@ void WritetoSD(uint8_t write_buff[], uint8_t bufSize)
 		OLED_ShowString(0, 0, "SD mount fail ", 16);
 	}
 
-	res = f_open(&file, "test.csv", FA_OPEN_ALWAYS | FA_WRITE);
+	res = f_open(&file, file_name, FA_OPEN_ALWAYS | FA_WRITE);
 	if ((res & FR_DENIED) == FR_DENIED)
 	{
 		OLED_ShowString(0, 0, "SD full ", 16);
@@ -528,7 +528,6 @@ void WritetoSD(uint8_t write_buff[], uint8_t bufSize)
 	}
 	else
 	{
-		OLED_Clear();
 		OLED_ShowString(0, 0, "file open fail ", 16);
 		// printf("打开文件失败!\r\n");
 	}

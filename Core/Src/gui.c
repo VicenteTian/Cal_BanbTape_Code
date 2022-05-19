@@ -7,6 +7,12 @@
 #include "gui.h"
 #include "key.h"
 #include "oled.h"
+#include "SDdriver.h"
+#include <string.h>
+__IO uint8_t is_main_menu = 1;
+char c_Pack_ID[4] = {'0', '0', '0', '\0'};
+char file_end[5] = {'.', 'c', 's', 'v', '\0'};
+uint8_t Bit_num = 0;
 const unsigned char Enter[] =
 	{0xFF, 0x01, 0x41, 0xC1, 0x81, 0x01, 0x01, 0x01, 0x01, 0x81, 0xC1, 0x61, 0x39, 0x19, 0x01, 0xFF,
 	 0xFF, 0x80, 0x80, 0x80, 0x81, 0x83, 0x86, 0x86, 0x83, 0x83, 0x80, 0x80, 0x80, 0x80, 0x80, 0xFF};
@@ -24,13 +30,13 @@ static void (*current_operation_func)(uint8_t, uint8_t); //定义一个函数指
 Main_Menu table[20] =
 	{
 		// Cur_Index,        previous,       next,            enter,          back,   (*current_operation)(u8,u8)
-		{_S_Pack_ID, _S_Volume, _S_Length_Input, _Pack_ID, _Pack_ID, S_Pack_ID},
+		{_S_Pack_ID, _S_Volume, _S_Length_Input, _Pack_ID, _S_Pack_ID, S_Pack_ID},
 		{_S_Length_Input, _S_Pack_ID, _S_Thickness_Input, _Length_Input, _S_Pack_ID, S_Length_Input},
 		{_S_Thickness_Input, _S_Length_Input, _S_Width_Input, _Thickness_Input, _S_Pack_ID, S_Thickness_Input},
 		{_S_Width_Input, _S_Thickness_Input, _S_Volume, _S_Width_Input, _S_Pack_ID, S_Width_Input},
 		{_S_Volume, _S_Width_Input, _S_Pack_ID, _S_Volume, _S_Pack_ID, S_Volume},
 		//子菜单
-		
+		{_Pack_ID, _Pack_ID, _Pack_ID, _Pack_ID, _Pack_ID, Pack_ID},
 };
 /*
 函数功能：刷新界面
@@ -40,7 +46,7 @@ Main_Menu table[20] =
 void GUI_Refresh(void)
 {
 	uint8_t key_val = bsp_GetKey();
-	if (key_val != KEY_NONE) //只有按键按下才刷屏
+	if ((key_val != KEY_NONE) && (is_main_menu)) //只有按键按下且在主菜单模式才刷屏
 	{
 		last_index = func_index; //更新上一界面索引值
 		switch (key_val)
@@ -73,6 +79,7 @@ void GUI_Refresh(void)
 */
 void S_Pack_ID(uint8_t page_index, uint8_t key_val)
 {
+	OLED_ShowString(16, 3, "1.", 16);
 	/*输入包号*/
 	OLED_ShowCHinese(32, 3, 6);
 	OLED_ShowCHinese(48, 3, 7);
@@ -87,6 +94,7 @@ void S_Pack_ID(uint8_t page_index, uint8_t key_val)
 }
 void S_Length_Input(uint8_t page_index, uint8_t key_val)
 {
+	OLED_ShowString(16, 3, "2.", 16);
 	/*输入长度*/
 	OLED_ShowCHinese(32, 3, 6);
 	OLED_ShowCHinese(48, 3, 7);
@@ -101,6 +109,7 @@ void S_Length_Input(uint8_t page_index, uint8_t key_val)
 }
 void S_Thickness_Input(uint8_t page_index, uint8_t key_val)
 {
+	OLED_ShowString(16, 3, "3.", 16);
 	/*输入厚度*/
 	OLED_ShowCHinese(32, 3, 6);
 	OLED_ShowCHinese(48, 3, 7);
@@ -115,6 +124,7 @@ void S_Thickness_Input(uint8_t page_index, uint8_t key_val)
 }
 void S_Width_Input(uint8_t page_index, uint8_t key_val)
 {
+	OLED_ShowString(16, 3, "4.", 16);
 	/*输入宽度*/
 	OLED_ShowCHinese(32, 3, 6);
 	OLED_ShowCHinese(48, 3, 7);
@@ -129,6 +139,7 @@ void S_Width_Input(uint8_t page_index, uint8_t key_val)
 }
 void S_Volume(uint8_t page_index, uint8_t key_val)
 {
+	OLED_ShowString(16, 3, "5.", 16);
 	/*计算体积*/
 	OLED_ShowCHinese(32, 3, 14);
 	OLED_ShowCHinese(48, 3, 15);
@@ -140,4 +151,81 @@ void S_Volume(uint8_t page_index, uint8_t key_val)
 	/*上下翻页*/
 	OLED_DrawBMP(60, 0, 68, 1, up);
 	OLED_DrawBMP(60, 7, 68, 8, down);
+}
+void Pack_ID(uint8_t page_index, uint8_t key_val)
+{
+	if (is_main_menu)
+	{
+		OLED_Clear();
+		is_main_menu = 0;
+		/*包号：0~999*/
+		OLED_ShowCHinese(0, 0, 0);
+		OLED_ShowCHinese(16, 0, 1);
+		OLED_ShowString(32, 0, ": 0-999", 16);
+		/*确认 返回 */
+		OLED_ShowCHinese(0, 6, 12);
+		OLED_ShowCHinese(16, 6, 16);
+		OLED_ShowCHinese(112, 6, 13);
+		OLED_ShowCHinese(96, 6, 17);
+		OLED_ShowString(36, 4, "---", 16);
+	}
+	if ((key_val != KEY_NONE) && (((key_val - 1) % 3) == 0))
+	{
+		beep();
+		if (key_val == KEY_12_DOWN) // F1
+		{
+			is_main_menu = 1;
+			for (uint8_t i = 0; i < Bit_num; i++)
+			{
+				/* code */
+			}
+			char *File_name = (char *)malloc(sizeof(char) * (Bit_num + 5));
+			char *title1 = (char *)malloc(sizeof(char) * (Bit_num+5));
+			for (uint8_t i = 0; i < Bit_num; i++)
+			{
+				File_name[i] = c_Pack_ID[3 - Bit_num + i];
+				title1[i] = c_Pack_ID[3 - Bit_num + i];
+			}
+			strcat(File_name, file_end);
+			WritetoSD(File_name, title1, sizeof(title1));
+			WritetoSD(File_name, "\nWidth,Longth,Thickness\n", sizeof(char)*25);
+			OLED_Clear();
+			func_index = page_index - 5;
+			current_operation_func = table[func_index].current_operation;
+			(*current_operation_func)(func_index, key_val); //执行当前索引对应的函数
+			Bit_num = 0;
+		}
+		else if (key_val == KEY_13_DOWN)
+		{
+			c_Pack_ID[0] = ' ';
+			c_Pack_ID[1] = ' ';
+			c_Pack_ID[2] = ' ';
+			OLED_ShowString(36, 3, c_Pack_ID, 16);
+			Bit_num = 0;
+		}
+		else
+		{
+			if (Bit_num > 2)
+			{
+				Bit_num = 2;
+			}
+			if (Bit_num == 0)
+			{
+				c_Pack_ID[2] = (key_val - 1) / 3 + '0';
+			}
+			else if (Bit_num == 1)
+			{
+				c_Pack_ID[1] = c_Pack_ID[2];
+				c_Pack_ID[2] = (key_val - 1) / 3 + '0';
+			}
+			else
+			{
+				c_Pack_ID[0] = c_Pack_ID[1];
+				c_Pack_ID[1] = c_Pack_ID[2];
+				c_Pack_ID[2] = (key_val - 1) / 3 + '0';
+			}
+			OLED_ShowString(36, 3, c_Pack_ID, 16);
+			++Bit_num;
+		}
+	}
 }

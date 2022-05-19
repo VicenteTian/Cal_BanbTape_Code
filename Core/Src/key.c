@@ -192,7 +192,7 @@ static uint8_t IsKeyDown11(void) //#
 	else
 		return 0;
 }
-static uint8_t IsKeyDown12(void) //<-
+static uint8_t IsKeyDown12(void) //F1
 {
 	O1_L;
 	O2_H;
@@ -206,7 +206,7 @@ static uint8_t IsKeyDown12(void) //<-
 	else
 		return 0;
 }
-static uint8_t IsKeyDown13(void) // F1
+static uint8_t IsKeyDown13(void) // F2
 {
 	O1_H;
 	O2_L;

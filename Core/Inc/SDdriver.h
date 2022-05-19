@@ -141,7 +141,7 @@ uint8_t 		SD_WriteDisk(uint8_t*buf,uint32_t sector,uint8_t cnt);
 
 void SPI_setspeed(uint8_t speed);
 uint8_t spi_readwrite(uint8_t Txdata);
-void WritetoSD(uint8_t write_buff[], uint8_t bufSize);
+void WritetoSD(char file_name[],uint8_t write_buff[], uint8_t bufSize);
 
 
 
