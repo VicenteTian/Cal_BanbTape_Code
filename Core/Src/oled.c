@@ -30,13 +30,7 @@ void OLED_WR_Byte(unsigned dat, unsigned cmd)
 		ucMode[0] = 0; //命令
 	}
 	ucMode[1] = dat;
-	while (HAL_I2C_Master_Transmit(&hi2c1, OLED_ADDR, ucMode, 2, 10000) != HAL_OK) //从机地址0x78 ，超时时间为10s
-	{																			   // HAL开头的都为库函数
-		if (HAL_I2C_GetError(&hi2c1) != HAL_I2C_ERROR_AF)
-		{
-			Error_Handler();
-		}
-	}
+	HAL_I2C_Master_Transmit(&hi2c1, OLED_ADDR, ucMode, 2, 100);
 }
 
 /********************************************
@@ -48,8 +42,8 @@ void fill_picture(unsigned char fill_Data)
 	for (m = 0; m < 8; m++)
 	{
 		OLED_WR_Byte(0xb0 + m, 0); // page0-page1
-		OLED_WR_Byte(XLevelL, 0);	   // low column start address
-		OLED_WR_Byte(XLevelH, 0);	   // high column start address
+		OLED_WR_Byte(XLevelL, 0);  // low column start address
+		OLED_WR_Byte(XLevelH, 0);  // high column start address
 		for (n = 0; n < 128; n++)
 		{
 			OLED_WR_Byte(fill_Data, 1);
@@ -60,7 +54,7 @@ void fill_picture(unsigned char fill_Data)
 
 void OLED_Set_Pos(unsigned char x, unsigned char y)
 {
-	x+=2;
+	x += 2;
 	OLED_WR_Byte(0xb0 + y, OLED_CMD);
 	OLED_WR_Byte(((x & 0xf0) >> 4) | 0x10, OLED_CMD);
 	OLED_WR_Byte((x & 0x0f), OLED_CMD);
@@ -86,8 +80,8 @@ void OLED_Clear(void)
 	for (i = 0; i < 8; i++)
 	{
 		OLED_WR_Byte(0xb0 + i, OLED_CMD); //设置页地址（0~7）
-		OLED_WR_Byte(XLevelL, OLED_CMD);	  //设置显示位置—列低地址
-		OLED_WR_Byte(XLevelH, OLED_CMD);	  //设置显示位置—列高地址
+		OLED_WR_Byte(XLevelL, OLED_CMD);  //设置显示位置—列低地址
+		OLED_WR_Byte(XLevelH, OLED_CMD);  //设置显示位置—列高地址
 		for (n = 0; n < 128; n++)
 			OLED_WR_Byte(0, OLED_DATA);
 	} //更新显示
@@ -98,8 +92,8 @@ void OLED_On(void)
 	for (i = 0; i < 8; i++)
 	{
 		OLED_WR_Byte(0xb0 + i, OLED_CMD); //设置页地址（0~7）
-		OLED_WR_Byte(XLevelL, OLED_CMD);	  //设置显示位置—列低地址
-		OLED_WR_Byte(XLevelH, OLED_CMD);	  //设置显示位置—列高地址
+		OLED_WR_Byte(XLevelL, OLED_CMD);  //设置显示位置—列低地址
+		OLED_WR_Byte(XLevelH, OLED_CMD);  //设置显示位置—列高地址
 		for (n = 0; n < 128; n++)
 			OLED_WR_Byte(1, OLED_DATA);
 	} //更新显示
@@ -202,7 +196,7 @@ void OLED_ShowCHinese(uint8_t x, uint8_t y, uint8_t no)
 	}
 }
 /***********功能描述：显示显示BMP图片128×64起始点坐标(x,y),x的范围0～127，y为页的范围0～7*****************/
-void OLED_DrawBMP(unsigned char x0, unsigned char y0, unsigned char x1, unsigned char y1,const unsigned char BMP[])
+void OLED_DrawBMP(unsigned char x0, unsigned char y0, unsigned char x1, unsigned char y1, const unsigned char BMP[])
 {
 	unsigned int j = 0;
 	unsigned char x, y;
@@ -224,17 +218,17 @@ void OLED_DrawBMP(unsigned char x0, unsigned char y0, unsigned char x1, unsigned
 //初始化SSD1306
 void OLED_Init(void)
 {
-	OLED_WR_Byte(0xAE, OLED_CMD); //--display off
-	OLED_WR_Byte(0x00, OLED_CMD); //---set low column address
+	OLED_WR_Byte(0xAE, OLED_CMD);	 //--display off
+	OLED_WR_Byte(0x00, OLED_CMD);	 //---set low column address
 	OLED_WR_Byte(XLevelL, OLED_CMD); //---set high column address
 	OLED_WR_Byte(XLevelH, OLED_CMD); //--set start line address
-	OLED_WR_Byte(0xB0, OLED_CMD); //--set page address
-	OLED_WR_Byte(0x81, OLED_CMD); // contract control
-	OLED_WR_Byte(0xFF, OLED_CMD); //--128
-	OLED_WR_Byte(0xA0, OLED_CMD); // set segment remap ；0xa0左右反置 0xa1正常
-	OLED_WR_Byte(0xA6, OLED_CMD); //--normal / reverse
-	OLED_WR_Byte(0xA8, OLED_CMD); //--set multiplex ratio(1 to 64)
-	OLED_WR_Byte(0x3F, OLED_CMD); //--1/32 duty
+	OLED_WR_Byte(0xB0, OLED_CMD);	 //--set page address
+	OLED_WR_Byte(0x81, OLED_CMD);	 // contract control
+	OLED_WR_Byte(0xFF, OLED_CMD);	 //--128
+	OLED_WR_Byte(0xA0, OLED_CMD);	 // set segment remap ；0xa0左右反置 0xa1正常
+	OLED_WR_Byte(0xA6, OLED_CMD);	 //--normal / reverse
+	OLED_WR_Byte(0xA8, OLED_CMD);	 //--set multiplex ratio(1 to 64)
+	OLED_WR_Byte(0x3F, OLED_CMD);	 //--1/32 duty
 
 	OLED_WR_Byte(0xC0, OLED_CMD); // Com scan direction；0xc0上下反置 0xc8正常
 	OLED_WR_Byte(0xD3, OLED_CMD); //-set display offset

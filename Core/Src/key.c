@@ -32,7 +32,7 @@ static uint8_t IsKeyDown0(void) // 0
 	O4_L;
 	if ((GPIOA->IDR & I3_Pin) == 0)
 	{
-		beep();
+		//beep();
 		return 1;
 	}
 	else
@@ -46,7 +46,7 @@ static uint8_t IsKeyDown1(void)
 	O4_H;
 	if ((GPIOA->IDR & I2_Pin) == 0)
 	{
-		beep();
+		//beep();
 		return 1;
 	}
 	else
@@ -60,7 +60,7 @@ static uint8_t IsKeyDown2(void)
 	O4_H;
 	if ((GPIOA->IDR & I3_Pin) == 0)
 	{
-		beep();
+		//beep();
 		return 1;
 	}
 	else
@@ -74,7 +74,7 @@ static uint8_t IsKeyDown3(void)
 	O4_H;
 	if ((GPIOA->IDR & I4_Pin) == 0)
 	{
-		beep();
+		//beep();
 		return 1;
 	}
 	else
@@ -88,7 +88,7 @@ static uint8_t IsKeyDown4(void)
 	O4_H;
 	if ((GPIOA->IDR & I2_Pin) == 0)
 	{
-		beep();
+		//beep();
 		return 1;
 	}
 	else
@@ -102,7 +102,7 @@ static uint8_t IsKeyDown5(void)
 	O4_H;
 	if ((GPIOA->IDR & I3_Pin) == 0)
 	{
-		beep();
+		//beep();
 		return 1;
 	}
 	else
@@ -116,7 +116,7 @@ static uint8_t IsKeyDown6(void)
 	O4_H;
 	if ((GPIOA->IDR & I4_Pin) == 0)
 	{
-		beep();
+		//beep();
 		return 1;
 	}
 	else
@@ -130,7 +130,7 @@ static uint8_t IsKeyDown7(void)
 	O4_H;
 	if ((GPIOA->IDR & I2_Pin) == 0)
 	{
-		beep();
+		//beep();
 		return 1;
 	}
 	else
@@ -144,7 +144,7 @@ static uint8_t IsKeyDown8(void)
 	O4_H;
 	if ((GPIOA->IDR & I3_Pin) == 0)
 	{
-		beep();
+		//beep();
 		return 1;
 	}
 	else
@@ -158,7 +158,7 @@ static uint8_t IsKeyDown9(void)
 	O4_H;
 	if ((GPIOA->IDR & I4_Pin) == 0)
 	{
-		beep();
+		//beep();
 		return 1;
 	}
 	else
@@ -172,7 +172,7 @@ static uint8_t IsKeyDown10(void) // point .
 	O4_L;
 	if ((GPIOA->IDR & I2_Pin) == 0)
 	{
-		beep();
+		//beep();
 		return 1;
 	}
 	else
@@ -186,7 +186,7 @@ static uint8_t IsKeyDown11(void) //#
 	O4_L;
 	if ((GPIOA->IDR & I4_Pin) == 0)
 	{
-		beep();
+		//beep();
 		return 1;
 	}
 	else
@@ -200,7 +200,7 @@ static uint8_t IsKeyDown12(void) //<-
 	O4_H;
 	if ((GPIOB->IDR & I1_Pin) == 0)
 	{
-		beep();
+		//beep();
 		return 1;
 	}
 	else
@@ -214,7 +214,7 @@ static uint8_t IsKeyDown13(void) // F1
 	O4_H;
 	if ((GPIOB->IDR & I1_Pin) == 0)
 	{
-		beep();
+		//beep();
 		return 1;
 	}
 	else
@@ -485,59 +485,6 @@ void beep(void)
 	HAL_GPIO_WritePin(Buzzer_GPIO_Port, Buzzer_Pin, GPIO_PIN_SET);
 	HAL_Delay(50);
 	HAL_GPIO_WritePin(Buzzer_GPIO_Port, Buzzer_Pin, GPIO_PIN_RESET);
-}
-void key_handler(void)
-{
-	uint8_t ucKeyCode;
-	ucKeyCode = bsp_GetKey();
-	if (ucKeyCode != KEY_NONE)
-	{
-		switch (ucKeyCode)
-		{
-		case KEY_0_DOWN:
-
-			break;
-		case KEY_1_DOWN:
-
-			break;
-		case KEY_2_DOWN:
-
-			break;
-		case KEY_3_DOWN:
-
-			break;
-		case KEY_4_DOWN:
-
-			break;
-		case KEY_5_DOWN:
-
-			break;
-		case KEY_6_DOWN:
-
-			break;
-		case KEY_7_DOWN:
-
-			break;
-		case KEY_8_DOWN:
-
-			break;
-		case KEY_9_DOWN:
-
-			break;
-		case KEY_10_DOWN:
-
-			break;
-		case KEY_11_DOWN:
-
-			break;
-		case KEY_12_DOWN:
-
-			break;
-		case KEY_13_DOWN:
-
-			break;
-		}
-	}
 }
 
 void power_check(uint16_t *tcount)

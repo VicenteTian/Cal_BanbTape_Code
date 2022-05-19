@@ -123,10 +123,9 @@ uint8_t WriteBuffer[] = "12,06\n";
 
     /* USER CODE BEGIN 3 */
     bsp_KeyScan();
-    //key_handler();
     GUI_Refresh();
     power_check(&time_count);
-  }
+  }        
   /* USER CODE END 3 */
 }
 
