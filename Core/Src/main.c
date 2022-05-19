@@ -31,8 +31,9 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "oled.h"
-#include "key.h"
 #include "SDdriver.h"
+#include "gui.h"
+#include "key.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -105,8 +106,9 @@ uint8_t WriteBuffer[] = "12,06\n";
   beep();
   OLED_Init();
   OLED_Clear();
-  OLED_ShowString(0,0,"NO SD",16);
+  OLED_ShowString(0,0,(uint8_t*)"NO SD",16);
   SD_init(); // SD卡初始化
+	OLED_Clear();
   WritetoSD(WriteBuffer,sizeof(WriteBuffer));
   HAL_ADCEx_Calibration_Start(&hadc1); /* 启动AD转换并使能DMA传输和中断 */
   bsp_InitKeyVar();
@@ -121,7 +123,8 @@ uint8_t WriteBuffer[] = "12,06\n";
 
     /* USER CODE BEGIN 3 */
     bsp_KeyScan();
-    key_handler();
+    //key_handler();
+    GUI_Refresh();
     power_check(&time_count);
   }
   /* USER CODE END 3 */

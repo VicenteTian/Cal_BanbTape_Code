@@ -485,7 +485,7 @@ void WritetoSD(uint8_t write_buff[], uint8_t bufSize)
 			res = f_mount(&fs, "0:", 1);  //重新挂载
 			if (res == FR_OK)
 			{
-				OLED_ShowString(0, 0, "SD mount ok ", 16);
+				//OLED_ShowString(0, 0, "SD mount ok ", 16);
 				// printf("SD卡已经成功挂载，可以进进行文件写入测试!\r\n");
 			}
 		}
@@ -496,7 +496,7 @@ void WritetoSD(uint8_t write_buff[], uint8_t bufSize)
 	}
 	else if (res == FR_OK)
 	{
-		OLED_ShowString(0, 0, "SD mount ok ", 16);
+		//OLED_ShowString(0, 0, "SD mount ok ", 16);
 		// printf("挂载成功! \r\n");
 	}
 	else
@@ -517,7 +517,7 @@ void WritetoSD(uint8_t write_buff[], uint8_t bufSize)
 		res = f_write(&file, write_buff, bufSize, &Bw); //写数据到SD卡
 		if (res == FR_OK)
 		{
-			OLED_ShowString(0, 0, "Write ok ", 16);
+			//OLED_ShowString(0, 0, "Write ok ", 16);
 			// printf("文件写入成功！ \r\n");
 		}
 		else
