@@ -33,8 +33,8 @@ Main_Menu table[20] =
 		// Cur_Index,        previous,       next,            enter,          back,   (*current_operation)(u8,u8)
 		{_S_Pack_ID, _S_Volume, _S_Length_Input, _Pack_ID, _S_Pack_ID, S_Pack_ID},
 		{_S_Length_Input, _S_Pack_ID, _S_Thickness_Input, _Length_Input, _S_Pack_ID, S_Length_Input},
-		{_S_Thickness_Input, _S_Length_Input, _Width_Input, _Thickness_Input, _S_Pack_ID, S_Thickness_Input},
-		{_S_Width_Input, _S_Thickness_Input, _S_Volume, _S_Width_Input, _S_Pack_ID, S_Width_Input},
+		{_S_Thickness_Input, _S_Length_Input, _S_Width_Input, _Thickness_Input, _S_Pack_ID, S_Thickness_Input},
+		{_S_Width_Input, _S_Thickness_Input, _S_Volume, _Width_Input, _S_Pack_ID, S_Width_Input},
 		{_S_Volume, _S_Width_Input, _S_Pack_ID, _Volume, _S_Pack_ID, S_Volume},
 		//子菜单
 		{_Pack_ID, _Pack_ID, _Pack_ID, _Pack_ID, _Pack_ID, Pack_ID},
