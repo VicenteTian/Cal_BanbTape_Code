@@ -18,6 +18,16 @@ typedef struct
     void (*current_operation)(uint8_t, uint8_t); //当前索引执行的函数(界面)
 } Main_Menu;
 //各界面的索引值
+typedef struct
+{
+    uint8_t Pack_File_Name[8]; //包文件名
+    double length;             //长度
+    double width;              //宽度
+    double thickness;          //厚度
+    double Volume;             //体积
+    uint8_t Pice_count;        //工件片数
+    uint8_t All_Volume[20];     //总体积
+} Package;
 enum
 {
     _S_Pack_ID = 0,     //包序号
@@ -40,4 +50,11 @@ void S_Thickness_Input(uint8_t page_index, uint8_t key_val);
 void S_Width_Input(uint8_t page_index, uint8_t key_val);
 void S_Volume(uint8_t page_index, uint8_t key_val);
 void Pack_ID(uint8_t page_index, uint8_t key_val);
+void Length_Input(uint8_t page_index, uint8_t key_val);
+void Thickness_Input(uint8_t page_index, uint8_t key_val);
+void Width_Input(uint8_t page_index, uint8_t key_val);
+void Volume_show(uint8_t page_index, uint8_t key_val);
+void string_input(uint8_t string_buff[], uint8_t char_input, uint8_t n);
+void show_frame(void);
+void data_input(uint8_t key_val);
 #endif
