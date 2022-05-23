@@ -10,6 +10,7 @@
 #include "SDdriver.h"
 #include <string.h>
 __IO uint8_t is_main_menu = 1;
+__IO uint8_t is_show= 0;
 Package My_Pack = {"", 0.0, 0.0, 0.0, 0.0, 0, ""};
 char c_Pack_ID[4] = {' ', ' ', ' ', '\0'};
 char input_buff[9] = {' ', ' ', ' ', ' ', ' ', ' ', ' ', ',', '\0'};
@@ -51,25 +52,28 @@ Main_Menu table[20] =
 void GUI_Refresh(void)
 {
 	uint8_t key_val = bsp_GetKey();
-	if ((key_val != KEY_NONE) && (is_main_menu)) //只有按键按下且在主菜单模式才刷屏
+	
+	if ((key_val != KEY_NONE) && (is_main_menu)&&(((key_val - 1) % 3) == 0)) //只有按键按下且在主菜单模式才刷屏
 	{
+		beep();
+		is_show=0;
 		last_index = func_index; //更新上一界面索引值
 		switch (key_val)
 		{
 		case KEY_2_DOWN:
-			beep();
+
 			func_index = table[func_index].previous; //更新索引值 上
 			break;
 		case KEY_6_DOWN:
-			beep();
+
 			func_index = table[func_index].back; //更新索引值    右
 			break;
 		case KEY_8_DOWN:
-			beep();
+			
 			func_index = table[func_index].next; //更新索引值     下
 			break;
 		case KEY_4_DOWN:
-			beep();
+			
 			func_index = table[func_index].enter; //更新索引值     左
 			break;
 		}
@@ -84,6 +88,8 @@ void GUI_Refresh(void)
 */
 void S_Pack_ID(uint8_t page_index, uint8_t key_val)
 {
+	if(is_show==0)
+	{
 	OLED_ShowString(16, 3, "1.", 16);
 	/*输入包号*/
 	OLED_ShowCHinese(32, 3, 6);
@@ -98,9 +104,13 @@ void S_Pack_ID(uint8_t page_index, uint8_t key_val)
 	/*上下翻页*/
 	OLED_DrawBMP(60, 0, 68, 1, up);
 	OLED_DrawBMP(60, 7, 68, 8, down);
+		is_show=1;
+	}
 }
 void S_Length_Input(uint8_t page_index, uint8_t key_val)
 {
+		if(is_show==0)
+	{
 	OLED_ShowString(16, 3, "2.", 16);
 	/*输入长度*/
 	OLED_ShowCHinese(32, 3, 6);
@@ -115,9 +125,13 @@ void S_Length_Input(uint8_t page_index, uint8_t key_val)
 	/*上下翻页*/
 	OLED_DrawBMP(60, 0, 68, 1, up);
 	OLED_DrawBMP(60, 7, 68, 8, down);
+				is_show=1;
+	}
 }
 void S_Thickness_Input(uint8_t page_index, uint8_t key_val)
 {
+		if(is_show==0)
+	{
 	OLED_ShowString(16, 3, "3.", 16);
 	/*输入厚度*/
 	OLED_ShowCHinese(32, 3, 6);
@@ -132,9 +146,13 @@ void S_Thickness_Input(uint8_t page_index, uint8_t key_val)
 	/*上下翻页*/
 	OLED_DrawBMP(60, 0, 68, 1, up);
 	OLED_DrawBMP(60, 7, 68, 8, down);
+				is_show=1;
+	}
 }
 void S_Width_Input(uint8_t page_index, uint8_t key_val)
 {
+		if(is_show==0)
+	{
 	OLED_ShowString(16, 3, "4.", 16);
 	/*输入宽度*/
 	OLED_ShowCHinese(32, 3, 6);
@@ -149,9 +167,13 @@ void S_Width_Input(uint8_t page_index, uint8_t key_val)
 	/*上下翻页*/
 	OLED_DrawBMP(60, 0, 68, 1, up);
 	OLED_DrawBMP(60, 7, 68, 8, down);
+				is_show=1;
+	}
 }
 void S_Volume(uint8_t page_index, uint8_t key_val)
 {
+		if(is_show==0)
+	{
 	OLED_ShowString(16, 3, "5.", 16);
 	/*计算体积*/
 	OLED_ShowCHinese(32, 3, 14);
@@ -166,6 +188,8 @@ void S_Volume(uint8_t page_index, uint8_t key_val)
 	/*上下翻页*/
 	OLED_DrawBMP(60, 0, 68, 1, up);
 	OLED_DrawBMP(60, 7, 68, 8, down);
+				is_show=1;
+	}
 }
 void Pack_ID(uint8_t page_index, uint8_t key_val)
 {
@@ -289,7 +313,7 @@ void Length_Input(uint8_t page_index, uint8_t key_val)
 		else if (key_val == KEY_13_DOWN) // F2
 		{
 			string_input(input_buff, ' ', 7);
-			OLED_ShowString(40, 3, input_buff, 16);
+			OLED_ShowString(40, 4, input_buff, 16);
 			Bit_num = 0;
 		}
 		else if (key_val == KEY_11_DOWN) //#
@@ -337,7 +361,7 @@ void Thickness_Input(uint8_t page_index, uint8_t key_val)
 		else if (key_val == KEY_13_DOWN) // F2
 		{
 			string_input(input_buff, ' ', 7);
-			OLED_ShowString(40, 3, input_buff, 16);
+			OLED_ShowString(40, 4, input_buff, 16);
 			Bit_num = 0;
 		}
 		else if (key_val == KEY_11_DOWN) //#
