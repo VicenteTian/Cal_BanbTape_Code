@@ -8,7 +8,7 @@
 #define __KEY_H
 #include "stdint.h"
 #include "gpio.h"
-#define KEY_COUNT 14 //按键个数，8个独立按键+2个组合键
+#define KEY_COUNT 16 //按键个数
 
 #define O1_H GPIOB->BSRR = O1_Pin
 #define O1_L GPIOB->BRR = O1_Pin
@@ -18,47 +18,6 @@
 #define O3_L GPIOB->BRR = O3_Pin
 #define O4_H GPIOB->BSRR = O4_Pin
 #define O4_L GPIOB->BRR = O4_Pin
-
-//根据应用程序的功能重命名按键宏
-#define KEY_DOWN_K1 KEY_1_DOWN
-#define KEY_UP_K1 KEY_1_UP
-#define KEY_LONG_K1 KEY_1_LONG
-
-#define KEY_DOWN_K2 KEY_2_DOWN
-#define KEY_UP_K2 KEY_2_UP
-#define KEY_LONG_K2 KEY_2_LONG
-
-#define KEY_DOWN_K3 KEY_3_DOWN
-#define KEY_UP_K3 KEY_3_UP
-#define KEY_LONG_K3 KEY_3_LONG
-
-#define JOY_DOWN_U KEY_4_DOWN /* 上 */
-#define JOY_UP_U KEY_4_UP
-#define JOY_LONG_U KEY_4_LONG
-
-#define JOY_DOWN_D KEY_5_DOWN /* 下 */
-#define JOY_UP_D KEY_5_UP
-#define JOY_LONG_D KEY_5_LONG
-
-#define JOY_DOWN_L KEY_6_DOWN /* 左 */
-#define JOY_UP_L KEY_6_UP
-#define JOY_LONG_L KEY_6_LONG
-
-#define JOY_DOWN_R KEY_7_DOWN /* 右 */
-#define JOY_UP_R KEY_7_UP
-#define JOY_LONG_R KEY_7_LONG
-
-#define JOY_DOWN_OK KEY_8_DOWN /* ok */
-#define JOY_UP_OK KEY_8_UP
-#define JOY_LONG_OK KEY_8_LONG
-
-#define SYS_DOWN_K1K2 KEY_9_DOWN /* K1 K2 组合键 */
-#define SYS_UP_K1K2 KEY_9_UP
-#define SYS_LONG_K1K2 KEY_9_LONG
-
-#define SYS_DOWN_K2K3 KEY_10_DOWN /* K2 K3 组合键 */
-#define SYS_UP_K2K3 KEY_10_UP
-#define SYS_LONG_K2K3 KEY_10_LONG
 /* 按键ID, 主要用于bsp_KeyState()函数的入口参数 */
 typedef enum
 {
@@ -106,9 +65,10 @@ typedef struct
 typedef enum
 {
 	KEY_NONE = 0, /* 0 表示按键事件 */
-	KEY_0_DOWN,	  /* 1键按下 */
-	KEY_0_UP,	  /* 1键弹起 */
-	KEY_0_LONG,	  /* 1键长按 */
+	
+	KEY_0_DOWN,	  /* 0键按下 */
+	KEY_0_UP,	  /* 0键弹起 */
+	KEY_0_LONG,	  /* 0键长按 */
 
 	KEY_1_DOWN, /* 1键按下 */
 	KEY_1_UP,	/* 1键弹起 */
@@ -151,17 +111,25 @@ typedef enum
 	KEY_10_UP,	 /* 10键弹起 */
 	KEY_10_LONG, /* 10键长按 */
 
-	KEY_11_DOWN, /* 10键按下 */
-	KEY_11_UP,	 /* 10键弹起 */
-	KEY_11_LONG, /* 10键长按 */
+	KEY_11_DOWN, /* 11键按下 */
+	KEY_11_UP,	 /* 11键弹起 */
+	KEY_11_LONG, /* 11键长按 */
 
-	KEY_12_DOWN, /* 10键按下 */
-	KEY_12_UP,	 /* 10键弹起 */
-	KEY_12_LONG, /* 10键长按 */
+	KEY_12_DOWN, /* 12键按下 */
+	KEY_12_UP,	 /* 12键弹起 */
+	KEY_12_LONG, /* 12键长按 */
 
-	KEY_13_DOWN, /* 10键按下 */
-	KEY_13_UP,	 /* 10键弹起 */
-	KEY_13_LONG, /* 10键长按 */
+	KEY_13_DOWN, /* 13键按下 */
+	KEY_13_UP,	 /* 13键弹起 */
+	KEY_13_LONG, /* 13键长按 */
+	
+	KEY_14_DOWN, /* 14键按下 */
+	KEY_14_UP,	 /* 14弹起 */
+	KEY_14LONG, /* 14长按 */
+
+	KEY_15_DOWN, /* 15键按下 */
+	KEY_15_UP,	 /* 15键弹起 */
+	KEY_15_LONG, /* 15键长按 */
 } KEY_ENUM;
 
 /* 按键FIFO用到变量 */

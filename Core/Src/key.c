@@ -26,13 +26,12 @@ static void bsp_DetectKey(uint8_t i);
  */
 static uint8_t IsKeyDown0(void) // 0
 {
+	O4_L;
 	O1_H;
 	O2_H;
 	O3_H;
-	O4_L;
 	if ((GPIOA->IDR & I3_Pin) == 0)
 	{
-		//beep();
 		return 1;
 	}
 	else
@@ -40,11 +39,12 @@ static uint8_t IsKeyDown0(void) // 0
 }
 static uint8_t IsKeyDown1(void)
 {
-	O1_L;
-	O2_H;
+O2_L;
+	O1_H;
 	O3_H;
 	O4_H;
-	if ((GPIOA->IDR & I2_Pin) == 0)
+	
+	if ((GPIOB->IDR & I1_Pin) == 0)
 	{
 		//beep();
 		return 1;
@@ -54,11 +54,8 @@ static uint8_t IsKeyDown1(void)
 }
 static uint8_t IsKeyDown2(void)
 {
-	O1_L;
-	O2_H;
-	O3_H;
-	O4_H;
-	if ((GPIOA->IDR & I3_Pin) == 0)
+
+	if ((GPIOA->IDR & I2_Pin) == 0)
 	{
 		//beep();
 		return 1;
@@ -68,11 +65,8 @@ static uint8_t IsKeyDown2(void)
 }
 static uint8_t IsKeyDown3(void)
 {
-	O1_L;
-	O2_H;
-	O3_H;
-	O4_H;
-	if ((GPIOA->IDR & I4_Pin) == 0)
+
+	if ((GPIOA->IDR & I3_Pin) == 0)
 	{
 		//beep();
 		return 1;
@@ -82,13 +76,9 @@ static uint8_t IsKeyDown3(void)
 }
 static uint8_t IsKeyDown4(void)
 {
-	O1_H;
-	O2_L;
-	O3_H;
-	O4_H;
-	if ((GPIOA->IDR & I2_Pin) == 0)
+
+	if ((GPIOA->IDR & I4_Pin) == 0)
 	{
-		//beep();
 		return 1;
 	}
 	else
@@ -96,11 +86,13 @@ static uint8_t IsKeyDown4(void)
 }
 static uint8_t IsKeyDown5(void)
 {
+O3_L;
 	O1_H;
-	O2_L;
-	O3_H;
+	O2_H;
 	O4_H;
-	if ((GPIOA->IDR & I3_Pin) == 0)
+	
+
+	if ((GPIOB->IDR & I1_Pin) == 0)
 	{
 		//beep();
 		return 1;
@@ -110,11 +102,8 @@ static uint8_t IsKeyDown5(void)
 }
 static uint8_t IsKeyDown6(void)
 {
-	O1_H;
-	O2_L;
-	O3_H;
-	O4_H;
-	if ((GPIOA->IDR & I4_Pin) == 0)
+
+	if ((GPIOA->IDR & I2_Pin) == 0)
 	{
 		//beep();
 		return 1;
@@ -124,11 +113,8 @@ static uint8_t IsKeyDown6(void)
 }
 static uint8_t IsKeyDown7(void)
 {
-	O1_H;
-	O2_H;
-	O3_L;
-	O4_H;
-	if ((GPIOA->IDR & I2_Pin) == 0)
+
+	if ((GPIOA->IDR & I3_Pin) == 0)
 	{
 		//beep();
 		return 1;
@@ -138,11 +124,8 @@ static uint8_t IsKeyDown7(void)
 }
 static uint8_t IsKeyDown8(void)
 {
-	O1_H;
-	O2_H;
-	O3_L;
-	O4_H;
-	if ((GPIOA->IDR & I3_Pin) == 0)
+
+	if ((GPIOA->IDR & I4_Pin) == 0)
 	{
 		//beep();
 		return 1;
@@ -152,13 +135,13 @@ static uint8_t IsKeyDown8(void)
 }
 static uint8_t IsKeyDown9(void)
 {
+O4_L;
 	O1_H;
+	O3_H;
 	O2_H;
-	O3_L;
-	O4_H;
-	if ((GPIOA->IDR & I4_Pin) == 0)
+	
+	if ((GPIOB->IDR & I1_Pin) == 0)
 	{
-		//beep();
 		return 1;
 	}
 	else
@@ -166,10 +149,6 @@ static uint8_t IsKeyDown9(void)
 }
 static uint8_t IsKeyDown10(void) // point .
 {
-	O1_H;
-	O2_H;
-	O3_H;
-	O4_L;
 	if ((GPIOA->IDR & I2_Pin) == 0)
 	{
 		//beep();
@@ -178,12 +157,9 @@ static uint8_t IsKeyDown10(void) // point .
 	else
 		return 0;
 }
-static uint8_t IsKeyDown11(void) //#
+static uint8_t IsKeyDown11(void) //=
 {
-	O1_H;
-	O2_H;
-	O3_H;
-	O4_L;
+
 	if ((GPIOA->IDR & I4_Pin) == 0)
 	{
 		//beep();
@@ -192,12 +168,13 @@ static uint8_t IsKeyDown11(void) //#
 	else
 		return 0;
 }
-static uint8_t IsKeyDown12(void) //F1
+static uint8_t IsKeyDown12(void) //F1 确认
 {
 	O1_L;
 	O2_H;
 	O3_H;
 	O4_H;
+	
 	if ((GPIOB->IDR & I1_Pin) == 0)
 	{
 		//beep();
@@ -206,13 +183,32 @@ static uint8_t IsKeyDown12(void) //F1
 	else
 		return 0;
 }
-static uint8_t IsKeyDown13(void) // F2
+static uint8_t IsKeyDown13(void) // F2 UP
 {
-	O1_H;
-	O2_L;
-	O3_H;
-	O4_H;
-	if ((GPIOB->IDR & I1_Pin) == 0)
+
+	if ((GPIOA->IDR & I2_Pin) == 0)
+	{
+		//beep();
+		return 1;
+	}
+	else
+		return 0;
+}
+static uint8_t IsKeyDown14(void) // 返回
+{
+
+	if ((GPIOA->IDR & I3_Pin) == 0)
+	{
+		//beep();
+		return 1;
+	}
+	else
+		return 0;
+}
+static uint8_t IsKeyDown15(void) // down
+{
+
+	if ((GPIOA->IDR & I4_Pin) == 0)
 	{
 		//beep();
 		return 1;
@@ -369,6 +365,8 @@ void bsp_InitKeyVar(void)
 	s_tBtn[11].IsKeyDownFunc = IsKeyDown11;
 	s_tBtn[12].IsKeyDownFunc = IsKeyDown12;
 	s_tBtn[13].IsKeyDownFunc = IsKeyDown13;
+	s_tBtn[14].IsKeyDownFunc = IsKeyDown14;
+	s_tBtn[15].IsKeyDownFunc = IsKeyDown15;
 	/* 	s_tBtn[5].IsKeyDownFunc = IsKeyDown6;
 		s_tBtn[6].IsKeyDownFunc = IsKeyDown7;
 		s_tBtn[7].IsKeyDownFunc = IsKeyDown8; */
@@ -397,74 +395,79 @@ static void bsp_DetectKey(uint8_t i)
 	pBtn = &s_tBtn[i];
 	if (pBtn->IsKeyDownFunc())
 	{
-		if (pBtn->Count < KEY_FILTER_TIME)
+		HAL_Delay(50);
+		if (pBtn->IsKeyDownFunc())
 		{
-			pBtn->Count = KEY_FILTER_TIME;
+		bsp_PutKey((uint8_t)(3 * i + 1));
 		}
-		else if (pBtn->Count < 2 * KEY_FILTER_TIME)
-		{
-			pBtn->Count++;
-		}
-		else
-		{
-			if (pBtn->State == 0)
-			{
-				pBtn->State = 1;
+//		if (pBtn->Count < KEY_FILTER_TIME)
+//		{
+//			pBtn->Count = KEY_FILTER_TIME;
+//		}
+//		else if (pBtn->Count < 2 * KEY_FILTER_TIME)
+//		{
+//			pBtn->Count++;
+//		}
+//		else
+//		{
+//			if (pBtn->State == 0)
+//			{
+//				pBtn->State = 1;
 
-				/* 发送按钮按下的消息 */
-				bsp_PutKey((uint8_t)(3 * i + 1));
-			}
+//				/* 发送按钮按下的消息 */
+//				bsp_PutKey((uint8_t)(3 * i + 1));
+//			}
 
-			if (pBtn->LongTime > 0)
-			{
-				if (pBtn->LongCount < pBtn->LongTime)
-				{
-					/* 发送按钮持续按下的消息 */
-					if (++pBtn->LongCount == pBtn->LongTime)
-					{
-						/* 键值放入按键FIFO */
-						bsp_PutKey((uint8_t)(3 * i + 3));
-					}
-				}
-				else
-				{
-					if (pBtn->RepeatSpeed > 0)
-					{
-						if (++pBtn->RepeatCount >= pBtn->RepeatSpeed)
-						{
-							pBtn->RepeatCount = 0;
-							/* 常按键后，每隔10ms发送1个按键 */
-							bsp_PutKey((uint8_t)(3 * i + 1));
-						}
-					}
-				}
-			}
-		}
+//			if (pBtn->LongTime > 0)
+//			{
+//				if (pBtn->LongCount < pBtn->LongTime)
+//				{
+//					/* 发送按钮持续按下的消息 */
+//					if (++pBtn->LongCount == pBtn->LongTime)
+//					{
+//						/* 键值放入按键FIFO */
+//						bsp_PutKey((uint8_t)(3 * i + 3));
+//					}
+//				}
+//				else
+//				{
+//					if (pBtn->RepeatSpeed > 0)
+//					{
+//						if (++pBtn->RepeatCount >= pBtn->RepeatSpeed)
+//						{
+//							pBtn->RepeatCount = 0;
+//							/* 常按键后，每隔10ms发送1个按键 */
+//							bsp_PutKey((uint8_t)(3 * i + 1));
+//						}
+//					}
+//				}
+//			}
+		//}
 	}
-	else
-	{
-		if (pBtn->Count > KEY_FILTER_TIME)
-		{
-			pBtn->Count = KEY_FILTER_TIME;
-		}
-		else if (pBtn->Count != 0)
-		{
-			pBtn->Count--;
-		}
-		else
-		{
-			if (pBtn->State == 1)
-			{
-				pBtn->State = 0;
+//	else
+//	{
+//		if (pBtn->Count > KEY_FILTER_TIME)
+//		{
+//			pBtn->Count = KEY_FILTER_TIME;
+//		}
+//		else if (pBtn->Count != 0)
+//		{
+//			pBtn->Count--;
+//		}
+//		else
+//		{
+//			if (pBtn->State == 1)
+//			{
+//				pBtn->State = 0;
 
-				/* 发送按钮弹起的消息 */
-				bsp_PutKey((uint8_t)(3 * i + 2));
-			}
-		}
+//				/* 发送按钮弹起的消息 */
+//				bsp_PutKey((uint8_t)(3 * i + 2));
+//			}
+//		}
 
-		pBtn->LongCount = 0;
-		pBtn->RepeatCount = 0;
-	}
+//		pBtn->LongCount = 0;
+//		pBtn->RepeatCount = 0;
+//	}
 }
 /**
  * @description: 扫描所有按键。非阻塞
@@ -473,9 +476,10 @@ static void bsp_DetectKey(uint8_t i)
  */
 void bsp_KeyScan(void)
 {
+
 	uint8_t i;
 
-	for (i = 0; i < KEY_COUNT; i++)
+for (i = 0; i < KEY_COUNT; i++)
 	{
 		bsp_DetectKey(i);
 	}

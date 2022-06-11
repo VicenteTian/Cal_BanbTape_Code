@@ -89,7 +89,7 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-HAL_Delay(2000);
+	HAL_Delay(500);
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -119,7 +119,7 @@ HAL_Delay(2000);
     /* USER CODE BEGIN 3 */
 		if ((GPIOB->IDR & P_State_Pin) == 0)
 		{
-			HAL_Delay(2000);
+			HAL_Delay(1000);
 			if ((GPIOB->IDR & P_State_Pin) == 0)
 			{
 				beep();
@@ -127,7 +127,7 @@ HAL_Delay(2000);
 			}
 		}
     bsp_KeyScan();
-    //GUI_Refresh();
+    GUI_Refresh();
     power_check(&time_count);
   }        
   /* USER CODE END 3 */

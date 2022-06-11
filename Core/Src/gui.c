@@ -15,12 +15,6 @@ Package My_Pack = {"", 0.0, 0.0, 0.0, 0.0, 0, ""};
 char c_Pack_ID[4] = {' ', ' ', ' ', '\0'};
 char input_buff[9] = {' ', ' ', ' ', ' ', ' ', ' ', ' ', ',', '\0'};
 uint8_t Bit_num = 0;
-const unsigned char Enter[] =
-	{0xFF, 0x01, 0x41, 0xC1, 0x81, 0x01, 0x01, 0x01, 0x01, 0x81, 0xC1, 0x61, 0x39, 0x19, 0x01, 0xFF,
-	 0xFF, 0x80, 0x80, 0x80, 0x81, 0x83, 0x86, 0x86, 0x83, 0x83, 0x80, 0x80, 0x80, 0x80, 0x80, 0xFF};
-const unsigned char back[] =
-	{0xFF, 0x01, 0x01, 0x31, 0x79, 0xFD, 0x31, 0x31, 0x31, 0x31, 0x31, 0xF1, 0xF1, 0x01, 0x01, 0xFF,
-	 0xFF, 0x80, 0x80, 0x80, 0x80, 0x80, 0x8C, 0x8C, 0x8C, 0x8C, 0x8C, 0x8F, 0x8F, 0x80, 0x80, 0xFF};
 const unsigned char up[] =
 	{0x08, 0x0C, 0x0E, 0x0F, 0x0F, 0x0E, 0x0C, 0x08};
 const unsigned char down[] =
@@ -55,7 +49,9 @@ void GUI_Refresh(void)
 	
 	if ((key_val != KEY_NONE) && (is_main_menu)&&(((key_val - 1) % 3) == 0)) //只有按键按下且在主菜单模式才刷屏
 	{
-		beep();
+		beep();	
+		
+		OLED_ShowNum(2,0, (key_val - 1) / 3, 3, 8);
 		is_show=0;
 		last_index = func_index; //更新上一界面索引值
 		switch (key_val)
@@ -78,8 +74,8 @@ void GUI_Refresh(void)
 			break;
 		}
 	}
-	current_operation_func = table[func_index].current_operation;
-	(*current_operation_func)(func_index, key_val); //执行当前索引对应的函数
+	//current_operation_func = table[func_index].current_operation;
+	//(*current_operation_func)(func_index, key_val); //执行当前索引对应的函数
 }
 /*
 函数功能：显示包输入
@@ -96,11 +92,6 @@ void S_Pack_ID(uint8_t page_index, uint8_t key_val)
 	OLED_ShowCHinese(48, 3, 7);
 	OLED_ShowCHinese(64, 3, 0);
 	OLED_ShowCHinese(80, 3, 1);
-	/*确认 返回 */
-	OLED_ShowCHinese(0, 6, 12);
-	OLED_ShowNum(16, 6, 4, 1, 16);
-	OLED_ShowCHinese(112, 6, 13);
-	OLED_ShowNum(104, 6, 6, 1, 16);
 	/*上下翻页*/
 	OLED_DrawBMP(60, 0, 68, 1, up);
 	OLED_DrawBMP(60, 7, 68, 8, down);
@@ -228,8 +219,8 @@ void Pack_ID(uint8_t page_index, uint8_t key_val)
 					title1[i] = c_Pack_ID[3 - Bit_num + i];
 				}
 				char file_end[5] = {'.', 'C', 'S', 'V', '\0'};
-				strcat(File_name, file_end);
-				strcpy(My_Pack.Pack_File_Name, File_name);
+				//strcat(File_name, file_end);
+				//strcpy(My_Pack.Pack_File_Name, File_name);
 				//WritetoSD(File_name, "pack\n", sizeof(c_Pack_ID));
 			//	WritetoSD(File_name, c_Pack_ID, sizeof(c_Pack_ID));
 				//WritetoSD(File_name, "\nLongth,Thickness,Width\n", sizeof(char) * 25);
@@ -244,7 +235,7 @@ void Pack_ID(uint8_t page_index, uint8_t key_val)
 		}
 		else if (key_val == KEY_13_DOWN)
 		{
-			string_input(c_Pack_ID, ' ', 3);
+			//string_input(c_Pack_ID, ' ', 3);
 			OLED_ShowString(36, 3, c_Pack_ID, 16);
 			Bit_num = 0;
 		}
@@ -292,7 +283,7 @@ void Length_Input(uint8_t page_index, uint8_t key_val)
 		/*长度：*/
 		OLED_ShowCHinese(0, 4, 2);
 		OLED_ShowCHinese(16, 4, 5);
-		string_input(input_buff, ' ', 7);
+		//string_input(input_buff, ' ', 7);
 	}
 	if ((key_val != KEY_NONE) && (((key_val - 1) % 3) == 0))
 	{
@@ -312,7 +303,7 @@ void Length_Input(uint8_t page_index, uint8_t key_val)
 		}
 		else if (key_val == KEY_13_DOWN) // F2
 		{
-			string_input(input_buff, ' ', 7);
+			//string_input(input_buff, ' ', 7);
 			OLED_ShowString(40, 4, input_buff, 16);
 			Bit_num = 0;
 		}
