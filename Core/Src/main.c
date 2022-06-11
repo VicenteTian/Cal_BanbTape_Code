@@ -21,6 +21,7 @@
 #include "main.h"
 #include "adc.h"
 #include "dma.h"
+#include "fatfs.h"
 #include "i2c.h"
 #include "spi.h"
 #include "usb_device.h"
@@ -88,7 +89,7 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
+HAL_Delay(2000);
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -98,6 +99,7 @@ int main(void)
   MX_DMA_Init();
   MX_ADC1_Init();
   MX_USB_DEVICE_Init();
+  MX_FATFS_Init();
   /* USER CODE BEGIN 2 */
   beep();
   OLED_Init();
@@ -105,7 +107,6 @@ int main(void)
 	W25QXX_Init();
   HAL_ADCEx_Calibration_Start(&hadc1); /* 启动AD转换并使能DMA传输和中断 */
   bsp_InitKeyVar();
-	MX_USB_DEVICE_Init();
 	OLED_Clear();
   /* USER CODE END 2 */
 
@@ -116,6 +117,15 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+		if ((GPIOB->IDR & P_State_Pin) == 0)
+		{
+			HAL_Delay(2000);
+			if ((GPIOB->IDR & P_State_Pin) == 0)
+			{
+				beep();
+				HAL_GPIO_WritePin(P_Hold_GPIO_Port, P_Hold_Pin, GPIO_PIN_RESET);
+			}
+		}
     bsp_KeyScan();
     //GUI_Refresh();
     power_check(&time_count);
