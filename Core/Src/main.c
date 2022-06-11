@@ -21,19 +21,17 @@
 #include "main.h"
 #include "adc.h"
 #include "dma.h"
-#include "fatfs.h"
 #include "i2c.h"
 #include "spi.h"
-#include "usart.h"
 #include "usb_device.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "oled.h"
-#include "SDdriver.h"
+#include "W25QXX.h"
 #include "gui.h"
-#include "key.h"
+#include "key.h" 
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -97,21 +95,18 @@ int main(void)
   MX_GPIO_Init();
   MX_I2C1_Init();
   MX_SPI1_Init();
-  MX_FATFS_Init();
-  MX_USART2_UART_Init();
   MX_DMA_Init();
   MX_ADC1_Init();
-  //MX_USB_DEVICE_Init();
+  MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
   beep();
   OLED_Init();
   OLED_Clear();
-  OLED_ShowString(0,0,(uint8_t*)"NO SD",16);
-  SD_init(); // SD卡初始化
-	OLED_Clear();
+	W25QXX_Init();
   HAL_ADCEx_Calibration_Start(&hadc1); /* 启动AD转换并使能DMA传输和中断 */
   bsp_InitKeyVar();
 	MX_USB_DEVICE_Init();
+	OLED_Clear();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -122,7 +117,7 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
     bsp_KeyScan();
-    GUI_Refresh();
+    //GUI_Refresh();
     power_check(&time_count);
   }        
   /* USER CODE END 3 */

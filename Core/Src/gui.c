@@ -7,7 +7,7 @@
 #include "gui.h"
 #include "key.h"
 #include "oled.h"
-#include "SDdriver.h"
+#include "W25QXX.h"
 #include <string.h>
 __IO uint8_t is_main_menu = 1;
 __IO uint8_t is_show= 0;
@@ -230,9 +230,9 @@ void Pack_ID(uint8_t page_index, uint8_t key_val)
 				char file_end[5] = {'.', 'C', 'S', 'V', '\0'};
 				strcat(File_name, file_end);
 				strcpy(My_Pack.Pack_File_Name, File_name);
-				WritetoSD(File_name, "pack\n", sizeof(c_Pack_ID));
-				WritetoSD(File_name, c_Pack_ID, sizeof(c_Pack_ID));
-				WritetoSD(File_name, "\nLongth,Thickness,Width\n", sizeof(char) * 25);
+				//WritetoSD(File_name, "pack\n", sizeof(c_Pack_ID));
+			//	WritetoSD(File_name, c_Pack_ID, sizeof(c_Pack_ID));
+				//WritetoSD(File_name, "\nLongth,Thickness,Width\n", sizeof(char) * 25);
 				free(File_name);
 				OLED_Clear();
 				My_Pack.Pice_count = 0; //片数清0
@@ -417,15 +417,15 @@ void Width_Input(uint8_t page_index, uint8_t key_val)
 				string_input(temp, '\0', 9);
 				temp[7] = ',';
 				sprintf(temp, "%.3f", My_Pack.length);
-				WritetoSD(My_Pack.Pack_File_Name, temp, sizeof(temp));
+			//	WritetoSD(My_Pack.Pack_File_Name, temp, sizeof(temp));
 
 				string_input(temp, '\0', 9);
 				temp[7] = ',';
 				sprintf(temp, "%.3f", My_Pack.thickness);
-				WritetoSD(My_Pack.Pack_File_Name, temp, sizeof(temp));
+				//WritetoSD(My_Pack.Pack_File_Name, temp, sizeof(temp));
 
-				WritetoSD(My_Pack.Pack_File_Name, input_buff, sizeof(input_buff));
-				WritetoSD(My_Pack.Pack_File_Name, "\n", sizeof(char) * 2);
+				//WritetoSD(My_Pack.Pack_File_Name, input_buff, sizeof(input_buff));
+				//WritetoSD(My_Pack.Pack_File_Name, "\n", sizeof(char) * 2);
 
 				++My_Pack.Pice_count;
 				OLED_ShowNum(72, 7, My_Pack.Pice_count, 3, 8);
@@ -449,7 +449,7 @@ void Width_Input(uint8_t page_index, uint8_t key_val)
 		{
 			is_main_menu = 1;
 			sprintf(My_Pack.All_Volume, "%.3f", My_Pack.Volume); //保留小数点后3位小数，打印到Data数组中
-			WritetoSD(My_Pack.Pack_File_Name, My_Pack.All_Volume, sizeof(My_Pack.All_Volume));
+			//WritetoSD(My_Pack.Pack_File_Name, My_Pack.All_Volume, sizeof(My_Pack.All_Volume));
 			OLED_Clear();
 			func_index = _Volume;
 			current_operation_func = table[func_index].current_operation;
