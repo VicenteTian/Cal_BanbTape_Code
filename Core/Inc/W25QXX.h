@@ -171,6 +171,7 @@ void W25QXX_Read(uint8_t* pBuffer, uint32_t ReadAddr,uint16_t NumByteToRead);			
 void W25QXX_Write(uint8_t* pBuffer,uint32_t WriteAddr,uint16_t NumByteToWrite);			//写入flash
 void W25QXX_Write_Page(uint8_t* pBuffer,uint32_t WriteAddr,uint16_t NumByteToWrite);	//按页写入数据
 void W25QXX_Write_NoCheck(uint8_t* pBuffer,uint32_t WriteAddr,uint16_t NumByteToWrite);	//无校验写入数据
+void mount_disk(void);
 void WritetoSD(char file_name[],uint8_t write_buff[], uint8_t bufSize);
 
 

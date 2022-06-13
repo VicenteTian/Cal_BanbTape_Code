@@ -152,7 +152,6 @@ DRESULT USER_write (
 {
   /* USER CODE BEGIN WRITE */
   /* USER CODE HERE */
-	OLED_ShowString(50,4,"f w",16);
     W25QXX_Write(buff,sector*FLASH_SECTOR_SIZE, count*FLASH_SECTOR_SIZE);
     return RES_OK;
   /* USER CODE END WRITE */
