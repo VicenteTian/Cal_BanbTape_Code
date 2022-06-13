@@ -535,5 +535,5 @@ void WritetoSD(char file_name[], uint8_t write_buff[], uint8_t bufSize)
 		// printf("打开文件失败!\r\n");
 	}
 	f_close(&file); //关闭文件
-	// f_mount(NULL, "0:", 1); //取消挂载
+	 f_mount(NULL, "0:", 1); //取消挂载
 }

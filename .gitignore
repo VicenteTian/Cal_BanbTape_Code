@@ -1,4 +1,4 @@
-/MDK-ARM/
+/MDK-ARM/code/
 # Libraries
 *.lib
 *.a
