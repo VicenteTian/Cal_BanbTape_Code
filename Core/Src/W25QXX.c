@@ -1,6 +1,6 @@
 #include "W25QXX.h"
 #include "oled.h"
-
+#include "ff.h"
 uint32_t FLASH_SIZE=0;	//FLASH有多少字节，根据不同的FLASH芯片来计算得到，单位Byte
 uint8_t W25QXX_BUFFER[NumByteOfSector];	//定义一个扇区总共的字节数(4096字节)作为缓存数组
 
@@ -73,7 +73,7 @@ uint8_t W25QXX_Init(void)
 		case 0xEF16:				//W25Q64
 		{
 			FLASH_SIZE = Num64BlockOfChip*NumByteOfBlock;
-			OLED_ShowString(0,0,(uint8_t*)"W25Q64",16);
+			//OLED_ShowString(0,0,(uint8_t*)"W25Q64",16);
 			//HAL_UART_Transmit(&huart1,(uint8_t *)&"Flash Mode is W25Q64\r\n",22,0xff);
 			//打印flash芯片信息
 			//printf("FLASH_ID:0x%X Block:%d FLASH_SIZE:%dMB total:%d Bytes \r\n",ReadFlah_Type,Num64BlockOfChip,Num64BlockOfChip/16,FLASH_SIZE);
@@ -476,3 +476,73 @@ void W25QXX_Write_NoCheck(uint8_t* pBuffer,uint32_t WriteAddr,uint16_t NumByteTo
 		}
 	};	    
 } 
+/*   APP               */
+FATFS fs;
+	FIL file;
+void WritetoSD(char file_name[],uint8_t write_buff[], uint8_t bufSize)
+{
+	uint8_t res = 0;
+	uint8_t Bw = 0;
+	res = f_mount(&fs, "0:", 1); //??
+	if (res == FR_NO_FILESYSTEM) //??????,???
+	{
+		//		test_sd =1;				//???????
+		OLED_Clear();
+		OLED_ShowString(0, 0, "No file Sys ", 16);
+		res = f_mkfs("0:",0,0); //???sd?
+		if (res == FR_OK)
+		{
+			// printf("?????! \r\n");
+			res = f_mount(NULL, "0:", 1); //?????????
+			res = f_mount(&fs, "0:", 1);  //????
+			if (res == FR_OK)
+			{
+				//OLED_ShowString(0, 0, "SD mount ok ", 16);
+				// printf("SD???????,???????????!\r\n");
+			}
+		}
+		else
+		{
+			OLED_ShowString(0, 0, "format fail ", 16);
+		}
+	}
+	else if (res == FR_OK)
+	{
+		//OLED_ShowString(0, 0, "flash mount ok ", 16);
+		// printf("????! \r\n");
+	}
+	else
+	{
+		OLED_ShowString(0, 0, "SD mount fail ", 16);
+	}
+	res = f_open(&file, file_name,FA_OPEN_ALWAYS | FA_WRITE);
+	if ((res & FR_DENIED) == FR_DENIED)
+	{
+		OLED_ShowString(0, 0, "SD full ", 16);
+		// printf("?????,????!\r\n");
+	}
+	f_lseek(&file, f_size(&file)); //??????????????? 
+	if (res == FR_OK)
+	{
+		// printf("????/??????! \r\n");
+		res = f_write(&file, write_buff, bufSize, &Bw); //????SD?
+		OLED_ShowNum(6,6,res,2,16);
+		if (res == FR_OK)
+		{
+			OLED_ShowString(0, 0, "Write ok ", 16);
+			// printf("??????! \r\n");
+		}
+		else
+		{
+			OLED_ShowString(0, 0, "write fail", 16);
+			// printf("??????! \r\n");
+		}
+	}
+	else
+	{
+		OLED_ShowString(0, 0, "file open fail ", 16);
+		// printf("??????!\r\n");
+	}
+	f_close(&file);			//????
+	//f_mount(NULL, "0:", 1); //????
+}

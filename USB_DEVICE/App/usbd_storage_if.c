@@ -23,7 +23,6 @@
 
 /* USER CODE BEGIN INCLUDE */
 #include "W25QXX.h"
-#include "oled.h"
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -64,8 +63,8 @@
   */
 
 #define STORAGE_LUN_NBR                  1
-#define STORAGE_BLK_NBR                  2048
-#define STORAGE_BLK_SIZ                  4096
+#define STORAGE_BLK_NBR                  0x10000
+#define STORAGE_BLK_SIZ                  0x200
 
 /* USER CODE BEGIN PRIVATE_DEFINES */
 #define STORAGE_BLK_NBR                  2048
