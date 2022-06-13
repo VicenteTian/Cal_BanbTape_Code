@@ -56,26 +56,26 @@ void GUI_Refresh(void)
 		last_index = func_index; //更新上一界面索引值
 		switch (key_val)
 		{
-		case KEY_2_DOWN:
+		case KEY_13_DOWN:
 
 			func_index = table[func_index].previous; //更新索引值 上
 			break;
-		case KEY_6_DOWN:
+		case KEY_14_DOWN:
 
 			func_index = table[func_index].back; //更新索引值    右
 			break;
-		case KEY_8_DOWN:
+		case KEY_15_DOWN:
 			
 			func_index = table[func_index].next; //更新索引值     下
 			break;
-		case KEY_4_DOWN:
+		case KEY_12_DOWN:
 			
 			func_index = table[func_index].enter; //更新索引值     左
 			break;
 		}
 	}
-	//current_operation_func = table[func_index].current_operation;
-	//(*current_operation_func)(func_index, key_val); //执行当前索引对应的函数
+	current_operation_func = table[func_index].current_operation;
+	(*current_operation_func)(func_index, key_val); //执行当前索引对应的函数
 }
 /*
 函数功能：显示包输入

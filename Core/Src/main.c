@@ -128,8 +128,8 @@ int main(void)
         HAL_GPIO_WritePin(P_Hold_GPIO_Port, P_Hold_Pin, GPIO_PIN_RESET);
       }
     }
-    // bsp_KeyScan();
-    // GUI_Refresh();
+     bsp_KeyScan();
+     GUI_Refresh();
     power_check(&time_count);
   }
   /* USER CODE END 3 */
