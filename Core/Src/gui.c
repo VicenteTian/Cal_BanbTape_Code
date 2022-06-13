@@ -57,7 +57,7 @@ void GUI_Refresh(void)
 		switch (key_val)
 		{
 		case KEY_13_DOWN:
-
+			WritetoSD("test.txt", "12345\n", 6);
 			func_index = table[func_index].previous; //更新索引值 上
 			break;
 		case KEY_14_DOWN:

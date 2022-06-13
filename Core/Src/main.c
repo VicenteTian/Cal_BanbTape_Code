@@ -110,7 +110,6 @@ int main(void)
   OLED_Clear();
 	//W25QXX_Erase_Chip();
   mount_disk();
-  WritetoSD("test.txt", "12345\n", 6);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -129,9 +128,9 @@ int main(void)
         HAL_GPIO_WritePin(P_Hold_GPIO_Port, P_Hold_Pin, GPIO_PIN_RESET);
       }
     }
-    // bsp_KeyScan();
-     //GUI_Refresh();
-    power_check(&time_count);
+     bsp_KeyScan();
+     GUI_Refresh();
+     power_check(&time_count);
   }
   /* USER CODE END 3 */
 }
