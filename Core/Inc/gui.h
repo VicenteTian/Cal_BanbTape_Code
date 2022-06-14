@@ -26,7 +26,7 @@ typedef struct
     float thickness;          //厚度
     double all_width;         //总宽度
     uint8_t Pice_count;       //总片数
-    uint8_t short_Pice_count; //短板数
+    float short_Pice_count; //短板数
     float short_length;       //短板长度
     double Volume;            //体积
     uint8_t All_Volume[20];   //总体积
@@ -43,6 +43,8 @@ enum
     _Length_Input,    //输入长度
     _Thickness_Input, //输入厚度
     _Width_Input,     //输入宽度
+    _short_Input,     //短板输入
+    _short_num_Input,//短板数量输入
     _Volume,          //计算结果
 };
 
@@ -56,8 +58,11 @@ void Pack_ID(uint8_t page_index, uint8_t key_val);
 void Length_Input(uint8_t page_index, uint8_t key_val);
 void Thickness_Input(uint8_t page_index, uint8_t key_val);
 void Width_Input(uint8_t page_index, uint8_t key_val);
+void short_Input(uint8_t page_index, uint8_t key_val);
+void short_num_Input(uint8_t page_index, uint8_t key_val);
 void Volume_show(uint8_t page_index, uint8_t key_val);
 void string_input(uint8_t string_buff[], uint8_t char_input, uint8_t n);
+
 void show_frame(void);
 void data_input(uint8_t key_val, uint8_t max_bit_num);
 void data_del(void);
