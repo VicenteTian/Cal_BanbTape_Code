@@ -433,6 +433,10 @@ void short_Input(uint8_t page_index, uint8_t key_val)
 		uint8_t temp[9] = {0};
 		is_main_menu = 0;
 		OLED_Clear();
+		OLED_ShowCHinese(0, 2, 8);
+		OLED_ShowCHinese(16, 2, 9);
+		OLED_ShowCHinese(32, 2, 2);
+		OLED_ShowCHinese(48, 2, 5);
 		WritetoSD(file_name, "\n总片数,总宽度\n", 22);
 		string_input(temp, '\0', 9);
 		sprintf(temp, "%d", My_Pack.Pice_count);
@@ -441,7 +445,6 @@ void short_Input(uint8_t page_index, uint8_t key_val)
 		string_input(temp, '\0', 9);
 		sprintf(temp, "%.2f", My_Pack.all_width); //保留小数点后3位小数，打印到数组中
 		WritetoSD(file_name, temp, sizeof(temp));
-		OLED_ShowString(0, 2, "short length:", 8);
 		/*短板：*/
 		OLED_ShowString(2, 0, file_name, 8);
 		WritetoSD(file_name, "\n短板长度,短板数量\n", 28);
@@ -490,9 +493,11 @@ void short_num_Input(uint8_t page_index, uint8_t key_val)
 		is_main_menu = 0;
 		OLED_Clear();
 		/*短板：*/
-		// OLED_ShowString(2, 0, file_name, 8);
+		OLED_ShowCHinese(0, 2, 8);
+		OLED_ShowCHinese(16, 2, 9);
+		OLED_ShowCHinese(32, 2, 10);
+		OLED_ShowString(2, 0, file_name, 8);
 		string_input(input_buff, '\0', 10);
-		OLED_ShowString(0, 0, "short num:", 8);
 	}
 	if ((key_val != KEY_NONE) && (((key_val - 1) % 3) == 0))
 	{
