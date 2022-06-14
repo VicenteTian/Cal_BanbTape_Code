@@ -185,13 +185,13 @@ void OLED_ShowCHinese(uint8_t x, uint8_t y, uint8_t no)
 	OLED_Set_Pos(x, y);
 	for (t = 0; t < 16; t++)
 	{
-//		OLED_WR_Byte(Hzk[2 * no][t], OLED_DATA);
+		OLED_WR_Byte(Hzk[2 * no][t], OLED_DATA);
 		adder += 1;
 	}
 	OLED_Set_Pos(x, y + 1);
 	for (t = 0; t < 16; t++)
 	{
-//		OLED_WR_Byte(Hzk[2 * no + 1][t], OLED_DATA);
+		OLED_WR_Byte(Hzk[2 * no + 1][t], OLED_DATA);
 		adder += 1;
 	}
 }

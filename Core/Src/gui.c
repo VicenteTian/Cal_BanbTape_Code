@@ -87,9 +87,7 @@ void S_Pack_ID(uint8_t page_index, uint8_t key_val)
 	if(is_show==0)
 	{
 	OLED_ShowString(16, 3, "1.", 16);
-	/*输入包号*/
-	OLED_ShowCHinese(32, 3, 6);
-	OLED_ShowCHinese(48, 3, 7);
+	/*包号*/
 	OLED_ShowCHinese(64, 3, 0);
 	OLED_ShowCHinese(80, 3, 1);
 	/*上下翻页*/
@@ -103,16 +101,9 @@ void S_Length_Input(uint8_t page_index, uint8_t key_val)
 		if(is_show==0)
 	{
 	OLED_ShowString(16, 3, "2.", 16);
-	/*输入长度*/
-	OLED_ShowCHinese(32, 3, 6);
-	OLED_ShowCHinese(48, 3, 7);
+	/*长度*/
 	OLED_ShowCHinese(64, 3, 2);
 	OLED_ShowCHinese(80, 3, 5);
-	/*确认 返回 */
-	OLED_ShowCHinese(0, 6, 12);
-	OLED_ShowCHinese(112, 6, 13);
-	OLED_ShowNum(16, 6, 4, 1, 16);
-	OLED_ShowNum(104, 6, 6, 1, 16);
 	/*上下翻页*/
 	OLED_DrawBMP(60, 0, 68, 1, up);
 	OLED_DrawBMP(60, 7, 68, 8, down);
@@ -124,16 +115,9 @@ void S_Thickness_Input(uint8_t page_index, uint8_t key_val)
 		if(is_show==0)
 	{
 	OLED_ShowString(16, 3, "3.", 16);
-	/*输入厚度*/
-	OLED_ShowCHinese(32, 3, 6);
-	OLED_ShowCHinese(48, 3, 7);
+	/*厚度*/
 	OLED_ShowCHinese(64, 3, 4);
 	OLED_ShowCHinese(80, 3, 5);
-	/*确认 返回 */
-	OLED_ShowCHinese(0, 6, 12);
-	OLED_ShowCHinese(112, 6, 13);
-	OLED_ShowNum(16, 6, 4, 1, 16);
-	OLED_ShowNum(104, 6, 6, 1, 16);
 	/*上下翻页*/
 	OLED_DrawBMP(60, 0, 68, 1, up);
 	OLED_DrawBMP(60, 7, 68, 8, down);
@@ -145,16 +129,9 @@ void S_Width_Input(uint8_t page_index, uint8_t key_val)
 		if(is_show==0)
 	{
 	OLED_ShowString(16, 3, "4.", 16);
-	/*输入宽度*/
-	OLED_ShowCHinese(32, 3, 6);
-	OLED_ShowCHinese(48, 3, 7);
+	/*宽度*/
 	OLED_ShowCHinese(64, 3, 3);
 	OLED_ShowCHinese(80, 3, 5);
-	/*确认 返回 */
-	OLED_ShowCHinese(0, 6, 12);
-	OLED_ShowCHinese(112, 6, 13);
-	OLED_ShowNum(16, 6, 4, 1, 16);
-	OLED_ShowNum(104, 6, 6, 1, 16);
 	/*上下翻页*/
 	OLED_DrawBMP(60, 0, 68, 1, up);
 	OLED_DrawBMP(60, 7, 68, 8, down);
@@ -166,16 +143,9 @@ void S_Volume(uint8_t page_index, uint8_t key_val)
 		if(is_show==0)
 	{
 	OLED_ShowString(16, 3, "5.", 16);
-	/*计算体积*/
-	OLED_ShowCHinese(32, 3, 14);
-	OLED_ShowCHinese(48, 3, 15);
-	OLED_ShowCHinese(64, 3, 10);
-	OLED_ShowCHinese(80, 3, 11);
-	/*确认 返回 */
-	OLED_ShowCHinese(0, 6, 12);
-	OLED_ShowCHinese(112, 6, 13);
-	OLED_ShowNum(16, 6, 4, 1, 16);
-	OLED_ShowNum(104, 6, 6, 1, 16);
+	/*体积*/
+	OLED_ShowCHinese(64, 3, 6);
+	OLED_ShowCHinese(80, 3, 7);
 	/*上下翻页*/
 	OLED_DrawBMP(60, 0, 68, 1, up);
 	OLED_DrawBMP(60, 7, 68, 8, down);
@@ -194,11 +164,6 @@ void Pack_ID(uint8_t page_index, uint8_t key_val)
 		OLED_ShowCHinese(0, 0, 0);
 		OLED_ShowCHinese(16, 0, 1);
 		OLED_ShowString(32, 0, ": 0-999", 16);
-		/*确认 返回 */
-		OLED_ShowCHinese(0, 6, 12);
-		OLED_ShowCHinese(16, 6, 16);
-		OLED_ShowCHinese(112, 6, 13);
-		OLED_ShowCHinese(96, 6, 17);
 		OLED_ShowString(36, 4, "---", 16);
 		string_input(My_Pack.Pack_File_Name, '\0', 8);
 	}
@@ -459,9 +424,8 @@ void Volume_show(uint8_t page_index, uint8_t key_val)
 		OLED_Clear();
 		show_frame();
 		/*体积：*/
-		OLED_ShowCHinese(0, 4, 10);
-		OLED_ShowCHinese(16, 4, 11);
-		OLED_ShowCHinese(110, 4, 18);
+		OLED_ShowCHinese(0, 4, 6);
+		OLED_ShowCHinese(16, 4, 7);
 		OLED_ShowString(40, 4, My_Pack.All_Volume, 16);
 		is_main_menu = 0;
 	}
@@ -496,11 +460,6 @@ void show_frame(void)
 {
 	OLED_ShowString(0, 0, My_Pack.Pack_File_Name, 8);
 	OLED_ShowString(32, 4, ":", 16);
-	/*确认 返回 */
-	OLED_ShowCHinese(0, 6, 12);
-	OLED_ShowCHinese(16, 6, 16);
-	OLED_ShowCHinese(112, 6, 13);
-	OLED_ShowCHinese(96, 6, 17);
 }
 void data_input(uint8_t key_val)
 {
