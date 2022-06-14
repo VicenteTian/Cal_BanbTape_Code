@@ -200,8 +200,6 @@ void Pack_ID(uint8_t page_index, uint8_t key_val)
 				//++file_name_bit;
 				is_main_menu = 1;
 				OLED_Clear();
-				input_buff[Bit_num] = ',';
-				++Bit_num;
 				WritetoSD(file_name, input_buff, Bit_num);
 				func_index = _Length_Input;
 				current_operation_func = table[func_index].current_operation;
@@ -324,8 +322,6 @@ void Thickness_Input(uint8_t page_index, uint8_t key_val)
 									++i;
 								}
 								file_name_bit += i; */
-				input_buff[Bit_num] = ',';
-				++Bit_num;
 				WritetoSD(file_name, input_buff, Bit_num);
 				is_main_menu = 1;
 				func_index = _Width_Input;
@@ -419,16 +415,6 @@ void Width_Input(uint8_t page_index, uint8_t key_val)
 		else if (key_val == KEY_11_DOWN) //=
 		{
 			is_main_menu = 1;
-			WritetoSD(file_name, "\n总片数,总宽度\n", 22);
-			string_input(temp, '\0', 9);
-			sprintf(temp, "%.3f", My_Pack.Pice_count);
-			OLED_ShowString(0,0,temp,8);
-			WritetoSD(file_name, temp, sizeof(temp));
-			WritetoSD(file_name, ",", 2);
-			string_input(temp, '\0', 9);
-			sprintf(temp, "%.3f", My_Pack.all_width); //保留小数点后3位小数，打印到数组中
-			OLED_ShowString(0,0,temp,8);
-			WritetoSD(file_name, temp, sizeof(temp));
 			func_index = _short_Input;
 			current_operation_func = table[func_index].current_operation;
 			(*current_operation_func)(func_index, KEY_NONE); //执行当前索引对应的函数
@@ -444,14 +430,22 @@ void short_Input(uint8_t page_index, uint8_t key_val)
 {
 	if (is_main_menu)
 	{
+		uint8_t temp[9] = {0};
 		is_main_menu = 0;
 		OLED_Clear();
-		OLED_ShowString(0, 2, "s  l:", 8);
+		WritetoSD(file_name, "\n总片数,总宽度\n", 22);
+		string_input(temp, '\0', 9);
+		sprintf(temp, "%d", My_Pack.Pice_count);
+		WritetoSD(file_name, temp, sizeof(temp));
+		WritetoSD(file_name, ",", 2);
+		string_input(temp, '\0', 9);
+		sprintf(temp, "%.2f", My_Pack.all_width); //保留小数点后3位小数，打印到数组中
+		WritetoSD(file_name, temp, sizeof(temp));
+		OLED_ShowString(0, 2, "short length:", 8);
 		/*短板：*/
 		OLED_ShowString(2, 0, file_name, 8);
-		WritetoSD(file_name, "短板长度,短板数量\n", 28);
+		WritetoSD(file_name, "\n短板长度,短板数量\n", 28);
 		string_input(input_buff, '\0', 10);
-		
 	}
 	if ((key_val != KEY_NONE) && (((key_val - 1) % 3) == 0))
 	{
