@@ -1,18 +1,21 @@
 #include "W25QXX.h"
 #include "oled.h"
 #include "ff.h"
-uint32_t FLASH_SIZE = 0;				// FLASHÓÐ¶àÉÙ×Ö½Ú£¬¸ù¾Ý²»Í¬µÄFLASHÐ¾Æ¬À´¼ÆËãµÃµ½£¬µ¥Î»Byte
-uint8_t W25QXX_BUFFER[NumByteOfSector]; //¶¨ÒåÒ»¸öÉÈÇø×Ü¹²µÄ×Ö½ÚÊý(4096×Ö½Ú)×÷Îª»º´æÊý×é
+FATFS fs;
+FIL file;
+FRESULT res;
+uint32_t FLASH_SIZE = 0;				// FLASHï¿½Ð¶ï¿½ï¿½ï¿½ï¿½Ö½Ú£ï¿½ï¿½ï¿½ï¿½Ý²ï¿½Í¬ï¿½ï¿½FLASHÐ¾Æ¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ãµï¿½ï¿½ï¿½ï¿½ï¿½Î»Byte
+uint8_t W25QXX_BUFFER[NumByteOfSector]; //ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü¹ï¿½ï¿½ï¿½ï¿½Ö½ï¿½ï¿½ï¿½(4096ï¿½Ö½ï¿½)ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
-/*¶ÁÈ¡Ð¾Æ¬ID
-´«Èë²ÎÊý£ºÎÞ
-·µ»Ø²ÎÊý:
-	0XEF13,±íÊ¾Ð¾Æ¬ÐÍºÅÎªW25Q80
-	0XEF14,±íÊ¾Ð¾Æ¬ÐÍºÅÎªW25Q16
-	0XEF15,±íÊ¾Ð¾Æ¬ÐÍºÅÎªW25Q32
-	0XEF16,±íÊ¾Ð¾Æ¬ÐÍºÅÎªW25Q64
-	0XEF17,±íÊ¾Ð¾Æ¬ÐÍºÅÎªW25Q128
-	0XEF18,±íÊ¾Ð¾Æ¬ÐÍºÅÎªW25Q256
+/*ï¿½ï¿½È¡Ð¾Æ¬ID
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ï¿½ï¿½ï¿½Ø²ï¿½ï¿½ï¿½:
+	0XEF13,ï¿½ï¿½Ê¾Ð¾Æ¬ï¿½Íºï¿½ÎªW25Q80
+	0XEF14,ï¿½ï¿½Ê¾Ð¾Æ¬ï¿½Íºï¿½ÎªW25Q16
+	0XEF15,ï¿½ï¿½Ê¾Ð¾Æ¬ï¿½Íºï¿½ÎªW25Q32
+	0XEF16,ï¿½ï¿½Ê¾Ð¾Æ¬ï¿½Íºï¿½ÎªW25Q64
+	0XEF17,ï¿½ï¿½Ê¾Ð¾Æ¬ï¿½Íºï¿½ÎªW25Q128
+	0XEF18,ï¿½ï¿½Ê¾Ð¾Æ¬ï¿½Íºï¿½ÎªW25Q256
 */
 uint16_t W25QXX_ReadID(void)
 {
@@ -21,52 +24,52 @@ uint16_t W25QXX_ReadID(void)
 	TX_cmd[0] = Manufacturer;
 
 	CS_Enable();
-	//·¢ËÍÖ¸ÁîºÍ½ÓÊÕ¼òµ¥Êý¾ÝÍÆ¼öÊ¹ÓÃ²éÑ¯Ä£Ê½
-	HAL_SPI_TransmitReceive(&hspi1, TX_cmd, RX_temp, 6, 10); //·¢ËÍ¶ÁÈ¡IDÃüÁî
+	//ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½Í½ï¿½ï¿½Õ¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¼ï¿½Ê¹ï¿½Ã²ï¿½Ñ¯Ä£Ê½
+	HAL_SPI_TransmitReceive(&hspi1, TX_cmd, RX_temp, 6, 10); //ï¿½ï¿½ï¿½Í¶ï¿½È¡IDï¿½ï¿½ï¿½ï¿½
 	temp = RX_temp[4] << 8 | RX_temp[5];
 	CS_Disable();
-	return temp; //·µ»ØFLASHµÄIDºÅ
+	return temp; //ï¿½ï¿½ï¿½ï¿½FLASHï¿½ï¿½IDï¿½ï¿½
 }
 
 /*
-³õÊ¼»¯FLASH£¬°üÀ¨¶ÁÈ¡FLASH µÄID
-·µ»ØÖµ:
+ï¿½ï¿½Ê¼ï¿½ï¿½FLASHï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¡FLASH ï¿½ï¿½ID
+ï¿½ï¿½ï¿½ï¿½Öµ:
 */
 uint8_t W25QXX_Init(void)
 {
-	uint16_t ReadFlah_Type; //¶¨ÒåÊµ¼Ê¶ÁÈ¡µÄFLASHÐÍºÅ
-	uint8_t Flag = 0;		//±ê¼Ç³õÊ¼»°flash×´Ì¬£»0--Ê§°Ü£¬1--³É¹¦
-	CS_Disable();			// SPI FLASH²»Ñ¡ÖÐ
+	uint16_t ReadFlah_Type; //ï¿½ï¿½ï¿½ï¿½Êµï¿½Ê¶ï¿½È¡ï¿½ï¿½FLASHï¿½Íºï¿½
+	uint8_t Flag = 0;		//ï¿½ï¿½Ç³ï¿½Ê¼ï¿½ï¿½flash×´Ì¬ï¿½ï¿½0--Ê§ï¿½Ü£ï¿½1--ï¿½É¹ï¿½
+	CS_Disable();			// SPI FLASHï¿½ï¿½Ñ¡ï¿½ï¿½
 
-	ReadFlah_Type = W25QXX_ReadID(); //¶ÁÈ¡FLASHµÄID£¬È·ÈÏFLASHÐÍºÅ
-	// printf("FLASH_ID:0x%x\r\n",ReadFlah_Type);	//´òÓ¡flashµÄÐ¾Æ¬ID,²âÊÔÓÃ
+	ReadFlah_Type = W25QXX_ReadID(); //ï¿½ï¿½È¡FLASHï¿½ï¿½IDï¿½ï¿½È·ï¿½ï¿½FLASHï¿½Íºï¿½
+	// printf("FLASH_ID:0x%x\r\n",ReadFlah_Type);	//ï¿½ï¿½Ó¡flashï¿½ï¿½Ð¾Æ¬ID,ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	switch (ReadFlah_Type)
 	{
 	case 0xEF13: // W25Q80
 	{
-		FLASH_SIZE = Num80BlockOfChip * NumByteOfBlock; //¿é*65536 =×Ö½ÚÊý
+		FLASH_SIZE = Num80BlockOfChip * NumByteOfBlock; //ï¿½ï¿½*65536 =ï¿½Ö½ï¿½ï¿½ï¿½
 		// HAL_UART_Transmit(&huart1,(uint8_t *)&"Flash Mode is W25Q80\r\n",22,0xff);
-		//´òÓ¡flashÐ¾Æ¬ÐÅÏ¢
+		//ï¿½ï¿½Ó¡flashÐ¾Æ¬ï¿½ï¿½Ï¢
 		// printf("FLASH_ID:0x%X Block:%d FLASH_SIZE:%dMB total:%d Bytes \r\n",ReadFlah_Type,Num80BlockOfChip,Num80BlockOfChip/16,FLASH_SIZE);
-		Flag = 1; // FLASH ³õÊ¼»¯³É¹¦
+		Flag = 1; // FLASH ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½É¹ï¿½
 		break;
 	}
 	case 0xEF14: // W25Q16
 	{
 		FLASH_SIZE = Num16BlockOfChip * NumByteOfBlock;
 		// HAL_UART_Transmit(&huart1,(uint8_t *)&"Flash Mode is W25Q16\r\n",22,0xff);
-		//´òÓ¡flashÐ¾Æ¬ÐÅÏ¢
+		//ï¿½ï¿½Ó¡flashÐ¾Æ¬ï¿½ï¿½Ï¢
 		// printf("FLASH_ID:0x%X Block:%d FLASH_SIZE:%dMB total:%d Bytes \r\n",ReadFlah_Type,Num16BlockOfChip,Num16BlockOfChip/16,FLASH_SIZE);
-		Flag = 1; // FLASH ³õÊ¼»¯³É¹¦
+		Flag = 1; // FLASH ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½É¹ï¿½
 		break;
 	}
 	case 0xEF15: // W25Q32
 	{
 		FLASH_SIZE = Num32BlockOfChip * NumByteOfBlock;
 		// HAL_UART_Transmit(&huart1,(uint8_t *)&"Flash Mode is W25Q32\r\n",22,0xff);
-		//´òÓ¡flashÐ¾Æ¬ÐÅÏ¢
+		//ï¿½ï¿½Ó¡flashÐ¾Æ¬ï¿½ï¿½Ï¢
 		// printf("FLASH_ID:0x%X Block:%d FLASH_SIZE:%dMB total:%d Bytes \r\n",ReadFlah_Type,Num32BlockOfChip,Num32BlockOfChip/16,FLASH_SIZE);
-		Flag = 1; // FLASH ³õÊ¼»¯³É¹¦
+		Flag = 1; // FLASH ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½É¹ï¿½
 		break;
 	}
 	case 0xEF16: // W25Q64
@@ -74,85 +77,85 @@ uint8_t W25QXX_Init(void)
 		FLASH_SIZE = Num64BlockOfChip * NumByteOfBlock;
 		// OLED_ShowString(0,0,(uint8_t*)"W25Q64",16);
 		// HAL_UART_Transmit(&huart1,(uint8_t *)&"Flash Mode is W25Q64\r\n",22,0xff);
-		//´òÓ¡flashÐ¾Æ¬ÐÅÏ¢
+		//ï¿½ï¿½Ó¡flashÐ¾Æ¬ï¿½ï¿½Ï¢
 		// printf("FLASH_ID:0x%X Block:%d FLASH_SIZE:%dMB total:%d Bytes \r\n",ReadFlah_Type,Num64BlockOfChip,Num64BlockOfChip/16,FLASH_SIZE);
-		Flag = 1; // FLASH ³õÊ¼»¯³É¹¦
+		Flag = 1; // FLASH ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½É¹ï¿½
 		break;
 	}
 	case 0xEF17: // W25Q128
 	{
 		FLASH_SIZE = Num128BlockOfChip * NumByteOfBlock;
 		//	HAL_UART_Transmit(&huart1,(uint8_t *)&"Flash Mode is W25Q128\r\n",23,0xff);
-		//´òÓ¡flashÐ¾Æ¬ÐÅÏ¢
+		//ï¿½ï¿½Ó¡flashÐ¾Æ¬ï¿½ï¿½Ï¢
 		// printf("FLASH_ID:0x%X Block:%d FLASH_SIZE:%dMB total:%d Bytes \r\n",ReadFlah_Type,Num128BlockOfChip,Num128BlockOfChip/16,FLASH_SIZE);
-		Flag = 1; // FLASH ³õÊ¼»¯³É¹¦
+		Flag = 1; // FLASH ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½É¹ï¿½
 		break;
 	}
 	case 0xEF18: // W25Q256
 	{
 		FLASH_SIZE = Num256BlockOfChip * NumByteOfBlock;
 		// HAL_UART_Transmit(&huart1,(uint8_t *)&"Flash Mode is W25Q256\r\n",23,0xff);
-		//´òÓ¡flashÐ¾Æ¬ÐÅÏ¢
+		//ï¿½ï¿½Ó¡flashÐ¾Æ¬ï¿½ï¿½Ï¢
 		// printf("FLASH_ID:0x%X Block:%d FLASH_SIZE:%dMB total:%d Bytes \r\n",ReadFlah_Type,Num256BlockOfChip,Num256BlockOfChip/16,FLASH_SIZE);
-		Flag = 1; // FLASH ³õÊ¼»¯³É¹¦
+		Flag = 1; // FLASH ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½É¹ï¿½
 		break;
 	}
 	case 0xEF19: // W25Q512
 	{
 		FLASH_SIZE = Num256BlockOfChip * NumByteOfBlock;
 		// HAL_UART_Transmit(&huart1,(uint8_t *)&"Flash Mode is W25Q512\r\n",23,0xff);
-		//´òÓ¡flashÐ¾Æ¬ÐÅÏ¢
+		//ï¿½ï¿½Ó¡flashÐ¾Æ¬ï¿½ï¿½Ï¢
 		// printf("FLASH_ID:0x%X Block:%d FLASH_SIZE:%dMB total:%d Bytes \r\n",ReadFlah_Type,Num512BlockOfChip,Num512BlockOfChip/16,FLASH_SIZE);
-		Flag = 1; // FLASH ³õÊ¼»¯³É¹¦
+		Flag = 1; // FLASH ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½É¹ï¿½
 		break;
 	}
 	default:
 	{
 		// HAL_UART_Transmit(&huart1,(uint8_t *)&"Other FLASH_ID,Flash init error\r\n",33,0xff);
-		Flag = 0; // FLASH ³õÊ¼»¯Ê§°Ü
+		Flag = 0; // FLASH ï¿½ï¿½Ê¼ï¿½ï¿½Ê§ï¿½ï¿½
 		break;
 	}
 	}
 	return Flag;
 }
 
-// W25QXXÐ´Ê¹ÄÜ
-//½«WELÖÃÎ»
+// W25QXXÐ´Ê¹ï¿½ï¿½
+//ï¿½ï¿½WELï¿½ï¿½Î»
 void W25QXX_Write_Enable(void)
 {
 	uint8_t cmd = Write_Enable;
-	CS_Enable();						   //Ê¹ÄÜÆ÷¼þ
-	HAL_SPI_Transmit(&hspi1, &cmd, 1, 10); //·¢ËÍÐ´Ê¹ÄÜ
-	CS_Disable();						   //È¡ÏûÆ¬Ñ¡
+	CS_Enable();						   //Ê¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	HAL_SPI_Transmit(&hspi1, &cmd, 1, 10); //ï¿½ï¿½ï¿½ï¿½Ð´Ê¹ï¿½ï¿½
+	CS_Disable();						   //È¡ï¿½ï¿½Æ¬Ñ¡
 }
 
-// W25QXXÐ´½ûÖ¹
-//½«WELÇåÁã
+// W25QXXÐ´ï¿½ï¿½Ö¹
+//ï¿½ï¿½WELï¿½ï¿½ï¿½ï¿½
 void W25QXX_Write_Disable(void)
 {
 	uint8_t cmd = Write_Disable;
-	CS_Enable();						   //Ê¹ÄÜÆ÷¼þ
-	HAL_SPI_Transmit(&hspi1, &cmd, 1, 10); //·¢ËÍÐ´½ûÖ¹Ö¸Áî
-	CS_Disable();						   //È¡ÏûÆ¬Ñ¡
+	CS_Enable();						   //Ê¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	HAL_SPI_Transmit(&hspi1, &cmd, 1, 10); //ï¿½ï¿½ï¿½ï¿½Ð´ï¿½ï¿½Ö¹Ö¸ï¿½ï¿½
+	CS_Disable();						   //È¡ï¿½ï¿½Æ¬Ñ¡
 }
 
-//¶ÁÈ¡W25QXXµÄ×´Ì¬¼Ä´æÆ÷£¬W25QXXÒ»¹²ÓÐ3¸ö×´Ì¬¼Ä´æÆ÷
-//×´Ì¬¼Ä´æÆ÷1£º
+//ï¿½ï¿½È¡W25QXXï¿½ï¿½×´Ì¬ï¿½Ä´ï¿½ï¿½ï¿½ï¿½ï¿½W25QXXÒ»ï¿½ï¿½ï¿½ï¿½3ï¿½ï¿½×´Ì¬ï¿½Ä´ï¿½ï¿½ï¿½
+//×´Ì¬ï¿½Ä´ï¿½ï¿½ï¿½1ï¿½ï¿½
 // BIT7  6   5   4   3   2   1   0
 // SPR   RV  TB BP2 BP1 BP0 WEL BUSY
-// SPR:Ä¬ÈÏ0,×´Ì¬¼Ä´æÆ÷±£»¤Î»,ÅäºÏWPÊ¹ÓÃ
-// TB,BP2,BP1,BP0:FLASHÇøÓòÐ´±£»¤ÉèÖÃ
-// WEL:Ð´Ê¹ÄÜËø¶¨
-// BUSY:Ã¦±ê¼ÇÎ»(1,Ã¦;0,¿ÕÏÐ)
-//Ä¬ÈÏ:0x00
-//×´Ì¬¼Ä´æÆ÷2£º
+// SPR:Ä¬ï¿½ï¿½0,×´Ì¬ï¿½Ä´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»,ï¿½ï¿½ï¿½WPÊ¹ï¿½ï¿½
+// TB,BP2,BP1,BP0:FLASHï¿½ï¿½ï¿½ï¿½Ð´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+// WEL:Ð´Ê¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+// BUSY:Ã¦ï¿½ï¿½ï¿½Î»(1,Ã¦;0,ï¿½ï¿½ï¿½ï¿½)
+//Ä¬ï¿½ï¿½:0x00
+//×´Ì¬ï¿½Ä´ï¿½ï¿½ï¿½2ï¿½ï¿½
 // BIT7  6   5   4   3   2   1   0
 // SUS   CMP LB3 LB2 LB1 (R) QE  SRP1
-//×´Ì¬¼Ä´æÆ÷3£º
+//×´Ì¬ï¿½Ä´ï¿½ï¿½ï¿½3ï¿½ï¿½
 // BIT7      6    5    4   3   2   1   0
 // HOLD/RST  DRV1 DRV0 (R) (R) WPS ADP ADS
-// regno:×´Ì¬¼Ä´æÆ÷ºÅ£¬·¶:1~3
-//·µ»ØÖµ:×´Ì¬¼Ä´æÆ÷Öµ
+// regno:×´Ì¬ï¿½Ä´ï¿½ï¿½ï¿½ï¿½Å£ï¿½ï¿½ï¿½:1~3
+//ï¿½ï¿½ï¿½ï¿½Öµ:×´Ì¬ï¿½Ä´ï¿½ï¿½ï¿½Öµ
 uint8_t W25QXX_ReadSR(uint8_t regno)
 {
 	uint8_t TX_cmd[2];
@@ -161,17 +164,17 @@ uint8_t W25QXX_ReadSR(uint8_t regno)
 	{
 	case 1:
 	{
-		TX_cmd[0] = Read_Status_Register1; //¶Á×´Ì¬¼Ä´æÆ÷1Ö¸Áî
+		TX_cmd[0] = Read_Status_Register1; //ï¿½ï¿½×´Ì¬ï¿½Ä´ï¿½ï¿½ï¿½1Ö¸ï¿½ï¿½
 		break;
 	}
 	case 2:
 	{
-		TX_cmd[0] = Read_Status_Register2; //¶Á×´Ì¬¼Ä´æÆ÷2Ö¸Áî
+		TX_cmd[0] = Read_Status_Register2; //ï¿½ï¿½×´Ì¬ï¿½Ä´ï¿½ï¿½ï¿½2Ö¸ï¿½ï¿½
 		break;
 	}
 	case 3:
 	{
-		TX_cmd[0] = Read_Status_Register3; //¶Á×´Ì¬¼Ä´æÆ÷3Ö¸Áî
+		TX_cmd[0] = Read_Status_Register3; //ï¿½ï¿½×´Ì¬ï¿½Ä´ï¿½ï¿½ï¿½3Ö¸ï¿½ï¿½
 		break;
 	}
 	default:
@@ -182,13 +185,13 @@ uint8_t W25QXX_ReadSR(uint8_t regno)
 	}
 	CS_Enable();
 	// Poll mode
-	//·¢ËÍÖ¸ÁîºÍ½ÓÊÕ¼òµ¥Êý¾ÝÍÆ¼öÊ¹ÓÃ²éÑ¯Ä£Ê½
-	HAL_SPI_TransmitReceive(&hspi1, TX_cmd, RX_temp, 2, 10); //·¢ËÍ¶Á×´Ì¬¼Ä´æÆ÷ÃüÁî
-	CS_Disable();											 //È¡ÏûFLASHÆ¬Ñ¡
+	//ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½Í½ï¿½ï¿½Õ¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¼ï¿½Ê¹ï¿½Ã²ï¿½Ñ¯Ä£Ê½
+	HAL_SPI_TransmitReceive(&hspi1, TX_cmd, RX_temp, 2, 10); //ï¿½ï¿½ï¿½Í¶ï¿½×´Ì¬ï¿½Ä´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	CS_Disable();											 //È¡ï¿½ï¿½FLASHÆ¬Ñ¡
 	return RX_temp[1];
 }
 
-//Ð´W25QXX×´Ì¬¼Ä´æÆ÷
+//Ð´W25QXX×´Ì¬ï¿½Ä´ï¿½ï¿½ï¿½
 void W25QXX_WriteSR(uint8_t regno, uint8_t sr)
 {
 	uint8_t TX_cmd[2];
@@ -196,17 +199,17 @@ void W25QXX_WriteSR(uint8_t regno, uint8_t sr)
 	{
 	case 1:
 	{
-		TX_cmd[0] = Write_Status_Register1; //Ð´×´Ì¬¼Ä´æÆ÷1Ö¸Áî
+		TX_cmd[0] = Write_Status_Register1; //Ð´×´Ì¬ï¿½Ä´ï¿½ï¿½ï¿½1Ö¸ï¿½ï¿½
 		break;
 	}
 	case 2:
 	{
-		TX_cmd[0] = Write_Status_Register2; //Ð´×´Ì¬¼Ä´æÆ÷2Ö¸Áî
+		TX_cmd[0] = Write_Status_Register2; //Ð´×´Ì¬ï¿½Ä´ï¿½ï¿½ï¿½2Ö¸ï¿½ï¿½
 		break;
 	}
 	case 3:
 	{
-		TX_cmd[0] = Write_Status_Register3; //Ð´×´Ì¬¼Ä´æÆ÷3Ö¸Áî
+		TX_cmd[0] = Write_Status_Register3; //Ð´×´Ì¬ï¿½Ä´ï¿½ï¿½ï¿½3Ö¸ï¿½ï¿½
 		break;
 	}
 	default:
@@ -216,45 +219,45 @@ void W25QXX_WriteSR(uint8_t regno, uint8_t sr)
 	}
 	}
 	TX_cmd[1] = sr;
-	CS_Enable(); //Ê¹ÄÜÆ÷¼þ
+	CS_Enable(); //Ê¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	// Poll mode
-	//·¢ËÍÖ¸ÁîºÍ½ÓÊÕ¼òµ¥Êý¾ÝÍÆ¼öÊ¹ÓÃ²éÑ¯Ä£Ê½
-	HAL_SPI_Transmit(&hspi1, TX_cmd, 2, 10); //·¢ËÍ¶Á×´Ì¬¼Ä´æÆ÷ÃüÁî
-	CS_Disable();							 //È¡ÏûÆ¬Ñ¡
+	//ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½Í½ï¿½ï¿½Õ¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¼ï¿½Ê¹ï¿½Ã²ï¿½Ñ¯Ä£Ê½
+	HAL_SPI_Transmit(&hspi1, TX_cmd, 2, 10); //ï¿½ï¿½ï¿½Í¶ï¿½×´Ì¬ï¿½Ä´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	CS_Disable();							 //È¡ï¿½ï¿½Æ¬Ñ¡
 }
 
-//µÈ´ý¿ÕÏÐ
+//ï¿½È´ï¿½ï¿½ï¿½ï¿½ï¿½
 void W25QXX_Wait_Busy(void)
 {
 	while ((W25QXX_ReadSR(1) & 0x01) == 0x01)
-		; // µÈ´ýBUSYÎ»Çå¿Õ
+		; // ï¿½È´ï¿½BUSYÎ»ï¿½ï¿½ï¿½
 }
 
-//½øÈëµôµçÄ£Ê½
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä£Ê½
 void W25QXX_PowerDown(void)
 {
-	uint8_t cmd = Power_down; //·¢ËÍÖ¸ÁîÉèÖÃÎªµôµç
+	uint8_t cmd = Power_down; //ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½
 
-	CS_Enable();						   //Ê¹ÄÜÆ÷¼þ
-	HAL_SPI_Transmit(&hspi1, &cmd, 1, 10); //·¢ËÍµôµçÃüÁî
-	CS_Disable();						   //È¡ÏûÆ¬Ñ¡
+	CS_Enable();						   //Ê¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	HAL_SPI_Transmit(&hspi1, &cmd, 1, 10); //ï¿½ï¿½ï¿½Íµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	CS_Disable();						   //È¡ï¿½ï¿½Æ¬Ñ¡
 
-	HAL_Delay(1); //µÈ´ýTPD
+	HAL_Delay(1); //ï¿½È´ï¿½TPD
 }
 
-//»½ÐÑ
+//ï¿½ï¿½ï¿½ï¿½
 void W25QXX_WAKEUP(void)
 {
-	uint8_t cmd = Release_Power_down;	   //ÉèÖÃ»½ÐÑÖ¸Áî
-	CS_Enable();						   //Ê¹ÄÜÆ÷¼þ
+	uint8_t cmd = Release_Power_down;	   //ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½
+	CS_Enable();						   //Ê¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	HAL_SPI_Transmit(&hspi1, &cmd, 1, 10); // send W25X_PowerDown command 0xAB
-	CS_Disable();						   //È¡ÏûÆ¬Ñ¡
-	HAL_Delay(1);						   //µÈ´ýTRES1
+	CS_Disable();						   //È¡ï¿½ï¿½Æ¬Ñ¡
+	HAL_Delay(1);						   //ï¿½È´ï¿½TRES1
 }
 
-//²Á³ýÒ»¸öÉÈÇø
-// Dst_Addr:ÉÈÇøµØÖ· ¸ù¾ÝÊµ¼ÊÈÝÁ¿ÉèÖÃ
-//²Á³ýÒ»¸öÉÈÇøµÄ×îÉÙÊ±¼ä:45ms - 400ms
+//ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+// Dst_Addr:ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö· ï¿½ï¿½ï¿½ï¿½Êµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+//ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½:45ms - 400ms
 void W25QXX_Erase_Sector(uint32_t Dst_Addr)
 {
 	uint8_t cmd[5];
@@ -264,16 +267,16 @@ void W25QXX_Erase_Sector(uint32_t Dst_Addr)
 	cmd[3] = (uint8_t)(Dst_Addr * NumByteOfSector);
 
 	W25QXX_Write_Enable();					// SET WEL
-	W25QXX_Wait_Busy();						//µÈ´ý¿ÕÏÐ
-	CS_Enable();							//Ê¹ÄÜÆ÷¼þ
-	HAL_SPI_Transmit(&hspi1, cmd, 4, 4000); //·¢ËÍ²Á³ýÉÈÇøÖ¸Áî+µØÖ·
-	CS_Disable();							//È¡ÏûÆ¬Ñ¡
-	W25QXX_Wait_Busy();						//µÈ´ý²Á³ýÍê³É
+	W25QXX_Wait_Busy();						//ï¿½È´ï¿½ï¿½ï¿½ï¿½ï¿½
+	CS_Enable();							//Ê¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	HAL_SPI_Transmit(&hspi1, cmd, 4, 4000); //ï¿½ï¿½ï¿½Í²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½+ï¿½ï¿½Ö·
+	CS_Disable();							//È¡ï¿½ï¿½Æ¬Ñ¡
+	W25QXX_Wait_Busy();						//ï¿½È´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 }
 
-//²Á³ýÒ»¸ö¿é
-// Dst_Addr:¿éµØÖ· ¸ù¾ÝÊµ¼ÊÈÝÁ¿ÉèÖÃ
-//²Á³ýÒ»¸ö¿éµÄ×îÉÙÊ±¼ä:150ms - 2000ms
+//ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½
+// Dst_Addr:ï¿½ï¿½ï¿½Ö· ï¿½ï¿½ï¿½ï¿½Êµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+//ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½:150ms - 2000ms
 void W25QXX_Erase_Block(uint32_t Dst_Addr)
 {
 	uint8_t cmd[5];
@@ -285,29 +288,29 @@ void W25QXX_Erase_Block(uint32_t Dst_Addr)
 	W25QXX_Write_Enable(); // SET WEL
 	W25QXX_Wait_Busy();
 
-	CS_Enable();						  //Ê¹ÄÜÆ÷¼þ
-	HAL_SPI_Transmit(&hspi1, cmd, 4, 20); //·¢ËÍÉÈÇø²Á³ýÖ¸Áî
+	CS_Enable();						  //Ê¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	HAL_SPI_Transmit(&hspi1, cmd, 4, 20); //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½
 
-	CS_Disable();		//È¡ÏûÆ¬Ñ¡
-	W25QXX_Wait_Busy(); //µÈ´ý²Á³ýÍê³É
+	CS_Disable();		//È¡ï¿½ï¿½Æ¬Ñ¡
+	W25QXX_Wait_Busy(); //ï¿½È´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 }
 
 void W25QXX_Erase_Chip(void)
 {
 	uint8_t cmd = Chip_Erase;
-	W25QXX_Write_Enable();					 //Ð´Ê¹ÄÜ
-	W25QXX_Wait_Busy();						 //µÈ´ý¿ÕÏÐ
-	CS_Enable();							 //Ê¹ÄÜÆ÷¼þ
-	HAL_SPI_Transmit(&hspi1, &cmd, 1, 1000); //·¢ËÍÆ¬²Á³ýÃüÁî
-	CS_Disable();							 //È¡ÏûÆ¬Ñ¡
-											 // W25QXX_Wait_Busy();   				//µÈ´ýÐ¾Æ¬²Á³ý½áÊø
+	W25QXX_Write_Enable();					 //Ð´Ê¹ï¿½ï¿½
+	W25QXX_Wait_Busy();						 //ï¿½È´ï¿½ï¿½ï¿½ï¿½ï¿½
+	CS_Enable();							 //Ê¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	HAL_SPI_Transmit(&hspi1, &cmd, 1, 1000); //ï¿½ï¿½ï¿½ï¿½Æ¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	CS_Disable();							 //È¡ï¿½ï¿½Æ¬Ñ¡
+											 // W25QXX_Wait_Busy();   				//ï¿½È´ï¿½Ð¾Æ¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 }
 
-// SPI·½Ê½¶ÁÈ¡FLASH
-//ÔÚÖ¸¶¨µØÖ·¿ªÊ¼¶ÁÈ¡Ö¸¶¨³¤¶ÈµÄÊý¾Ý
-// pBuffer:	Êý¾Ý´æ´¢Çø
-// ReadAddr:	¿ªÊ¼¶ÁÈ¡µÄµØÖ·(24bit)
-// NumByteToRead:	Òª¶ÁÈ¡µÄ×Ö½ÚÊý(×î´ó65535)
+// SPIï¿½ï¿½Ê½ï¿½ï¿½È¡FLASH
+//ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½Ê¼ï¿½ï¿½È¡Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½Èµï¿½ï¿½ï¿½ï¿½ï¿½
+// pBuffer:	ï¿½ï¿½ï¿½Ý´æ´¢ï¿½ï¿½
+// ReadAddr:	ï¿½ï¿½Ê¼ï¿½ï¿½È¡ï¿½Äµï¿½Ö·(24bit)
+// NumByteToRead:	Òªï¿½ï¿½È¡ï¿½ï¿½ï¿½Ö½ï¿½ï¿½ï¿½(ï¿½ï¿½ï¿½65535)
 void W25QXX_Read(uint8_t *pBuffer, uint32_t ReadAddr, uint16_t NumByteToRead)
 {
 	uint8_t cmd[5], cmd2[1];
@@ -316,18 +319,18 @@ void W25QXX_Read(uint8_t *pBuffer, uint32_t ReadAddr, uint16_t NumByteToRead)
 	cmd[2] = (uint8_t)((ReadAddr) >> 8);
 	cmd[3] = (uint8_t)(ReadAddr);
 
-	CS_Enable();																	   //Ê¹ÄÜÆ÷¼þ
-	HAL_SPI_Transmit(&hspi1, cmd, 4, 20);											   //·¢ËÍ¶ÁÈ¡Êý¾ÝÖ¸Áî+¶ÁÈ¡Ö¸ÁîµÄµØÖ·
-	HAL_SPI_TransmitReceive(&hspi1, cmd2, pBuffer, NumByteToRead, 10 * NumByteToRead); //·¢ËÍ¶ÁÈ¡Êý¾ÝÖ¸Áî£¬cmd2²»¹»µÄÊý¾Ý»á×Ô¶¯²¹0·¢ËÍ
+	CS_Enable();																	   //Ê¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	HAL_SPI_Transmit(&hspi1, cmd, 4, 20);											   //ï¿½ï¿½ï¿½Í¶ï¿½È¡ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½+ï¿½ï¿½È¡Ö¸ï¿½ï¿½Äµï¿½Ö·
+	HAL_SPI_TransmitReceive(&hspi1, cmd2, pBuffer, NumByteToRead, 10 * NumByteToRead); //ï¿½ï¿½ï¿½Í¶ï¿½È¡ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½î£¬cmd2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý»ï¿½ï¿½Ô¶ï¿½ï¿½ï¿½0ï¿½ï¿½ï¿½ï¿½
 	CS_Disable();
 }
 
-// SPI·½Ê½Ð´FLASH
-//´ÓÖ¸¶¨µØÖ·¿ªÊ¼Ð´ÈëÖ¸¶¨³¤¶ÈµÄÊý¾Ý
-//¸Ãº¯Êý´ø²Á³ý²Ù×÷!
-// pBuffer:		Êý¾Ý´æ´¢Çø
-// WriteAddr:	¿ªÊ¼Ð´ÈëµÄµØÖ·(24bit)
-// NumByteToWrite:ÒªÐ´ÈëµÄ×Ö½ÚÊý(×î´ó65535)
+// SPIï¿½ï¿½Ê½Ð´FLASH
+//ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½Ê¼Ð´ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½Èµï¿½ï¿½ï¿½ï¿½ï¿½
+//ï¿½Ãºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½!
+// pBuffer:		ï¿½ï¿½ï¿½Ý´æ´¢ï¿½ï¿½
+// WriteAddr:	ï¿½ï¿½Ê¼Ð´ï¿½ï¿½Äµï¿½Ö·(24bit)
+// NumByteToWrite:ÒªÐ´ï¿½ï¿½ï¿½ï¿½Ö½ï¿½ï¿½ï¿½(ï¿½ï¿½ï¿½65535)
 void W25QXX_Write(uint8_t *pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite)
 {
 	uint16_t secpos;
@@ -337,73 +340,73 @@ void W25QXX_Write(uint8_t *pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite)
 	uint8_t *W25QXX_BUF;
 	W25QXX_BUF = W25QXX_BUFFER;
 
-	secpos = WriteAddr / NumByteOfSector; //ÉÈÇøµØÖ·
-	secoff = WriteAddr % NumByteOfSector; //ÔÚÉÈÇøÄÚµÄÆ«ÒÆ
-	secremain = NumByteOfSector - secoff; //ÉÈÇøÊ£Óà¿Õ¼ä´óÐ¡
-	// printf("ad:%X,nb:%X\r\n",WriteAddr,NumByteToWrite);//²âÊÔÓÃ
+	secpos = WriteAddr / NumByteOfSector; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·
+	secoff = WriteAddr % NumByteOfSector; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Úµï¿½Æ«ï¿½ï¿½
+	secremain = NumByteOfSector - secoff; //ï¿½ï¿½ï¿½ï¿½Ê£ï¿½ï¿½Õ¼ï¿½ï¿½Ð¡
+	// printf("ad:%X,nb:%X\r\n",WriteAddr,NumByteToWrite);//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
-	if (NumByteToWrite <= secremain) //µ±ÐèÒªÐ´ÈëµÄ×Ö½ÚÐ¡ÓÚÊ£Óà¿Õ¼äÊý
+	if (NumByteToWrite <= secremain) //ï¿½ï¿½ï¿½ï¿½ÒªÐ´ï¿½ï¿½ï¿½ï¿½Ö½ï¿½Ð¡ï¿½ï¿½Ê£ï¿½ï¿½Õ¼ï¿½ï¿½ï¿½
 	{
-		secremain = NumByteToWrite; //ÉèÖÃÊ£Óà¿Õ¼äÎªÐèÒªÐ´ÈëµÄ×Ö½ÚÊý
+		secremain = NumByteToWrite; //ï¿½ï¿½ï¿½ï¿½Ê£ï¿½ï¿½Õ¼ï¿½Îªï¿½ï¿½ÒªÐ´ï¿½ï¿½ï¿½ï¿½Ö½ï¿½ï¿½ï¿½
 	}
 	while (1)
 	{
-		W25QXX_Read(W25QXX_BUF, secpos * NumByteOfSector, NumByteOfSector); //¶Á³öÕû¸öÉÈÇøµÄÄÚÈÝ£¬
+		W25QXX_Read(W25QXX_BUF, secpos * NumByteOfSector, NumByteOfSector); //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý£ï¿½
 
-		for (i = 0; i < secremain; i++) //Ð£ÑéÊý¾Ý
+		for (i = 0; i < secremain; i++) //Ð£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		{
 			if (W25QXX_BUF[secoff + i] != 0XFF)
 			{
-				break; //ÐèÒª²Á³ý
+				break; //ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½
 			}
 		}
 
-		if (i < secremain) //ÐèÒª²Á³ý
+		if (i < secremain) //ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½
 		{
-			W25QXX_Erase_Sector(secpos); //²Á³ýÕâ¸öÉÈÇø
+			W25QXX_Erase_Sector(secpos); //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
-			for (i = 0; i < secremain; i++) //¸´ÖÆ
+			for (i = 0; i < secremain; i++) //ï¿½ï¿½ï¿½ï¿½
 			{
 				W25QXX_BUF[i + secoff] = pBuffer[i];
 			}
 
-			W25QXX_Write_NoCheck(W25QXX_BUF, secpos * NumByteOfSector, NumByteOfSector); //Ð´ÈëÕû¸öÉÈÇø
+			W25QXX_Write_NoCheck(W25QXX_BUF, secpos * NumByteOfSector, NumByteOfSector); //Ð´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		}
 		else
 		{
-			W25QXX_Write_NoCheck(pBuffer, WriteAddr, secremain); //Ð´ÒÑ¾­²Á³ýÁËµÄ,Ö±½ÓÐ´ÈëÉÈÇøÊ£ÓàÇø¼ä.
+			W25QXX_Write_NoCheck(pBuffer, WriteAddr, secremain); //Ð´ï¿½Ñ¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ëµï¿½,Ö±ï¿½ï¿½Ð´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.
 		}
 
 		if (NumByteToWrite == secremain)
 		{
 			// printf("Write Finished!!\r\n");
-			break; //Ð´Èë½áÊøÁË
+			break; //Ð´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		}
-		else //Ð´ÈëÎ´½áÊø
+		else //Ð´ï¿½ï¿½Î´ï¿½ï¿½ï¿½ï¿½
 		{
-			secpos++;					 //ÉÈÇøµØÖ·Ôö1
-			secoff = 0;					 //Æ«ÒÆÎ»ÖÃÎª0
-			pBuffer += secremain;		 //Ö¸ÕëÆ«ÒÆ
-			WriteAddr += secremain;		 //Ð´µØÖ·Æ«ÒÆ
-			NumByteToWrite -= secremain; //×Ö½ÚÊýµÝ¼õ
+			secpos++;					 //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½1
+			secoff = 0;					 //Æ«ï¿½ï¿½Î»ï¿½ï¿½Îª0
+			pBuffer += secremain;		 //Ö¸ï¿½ï¿½Æ«ï¿½ï¿½
+			WriteAddr += secremain;		 //Ð´ï¿½ï¿½Ö·Æ«ï¿½ï¿½
+			NumByteToWrite -= secremain; //ï¿½Ö½ï¿½ï¿½ï¿½ï¿½Ý¼ï¿½
 
 			if (NumByteToWrite > NumByteOfSector)
 			{
-				secremain = NumByteOfSector; //ÏÂÒ»¸öÉÈÇø»¹ÊÇÐ´²»Íê
+				secremain = NumByteOfSector; //ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð´ï¿½ï¿½ï¿½ï¿½
 			}
 			else
 			{
-				secremain = NumByteToWrite; //ÏÂÒ»¸öÉÈÇø¿ÉÒÔÐ´ÍêÁË
+				secremain = NumByteToWrite; //ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð´ï¿½ï¿½ï¿½ï¿½
 			}
 		}
 	}
 }
 
-// SPIÔÚÒ»Ò³(0~65535)ÄÚÐ´ÈëÉÙÓÚ256¸ö×Ö½ÚµÄÊý¾Ý
-//ÔÚÖ¸¶¨µØÖ·¿ªÊ¼Ð´Èë×î´ó256×Ö½ÚµÄÊý¾Ý
-// pBuffer:Êý¾Ý´æ´¢Çø
-// WriteAddr:¿ªÊ¼Ð´ÈëµÄµØÖ·(24bit)
-// NumByteToWrite:ÒªÐ´ÈëµÄ×Ö½ÚÊý(×î´ó256),¸ÃÊý²»Ó¦¸Ã³¬¹ý¸ÃÒ³µÄÊ£Óà×Ö½ÚÊý!!!
+// SPIï¿½ï¿½Ò»Ò³(0~65535)ï¿½ï¿½Ð´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½256ï¿½ï¿½ï¿½Ö½Úµï¿½ï¿½ï¿½ï¿½ï¿½
+//ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½Ê¼Ð´ï¿½ï¿½ï¿½ï¿½ï¿½256ï¿½Ö½Úµï¿½ï¿½ï¿½ï¿½ï¿½
+// pBuffer:ï¿½ï¿½ï¿½Ý´æ´¢ï¿½ï¿½
+// WriteAddr:ï¿½ï¿½Ê¼Ð´ï¿½ï¿½Äµï¿½Ö·(24bit)
+// NumByteToWrite:ÒªÐ´ï¿½ï¿½ï¿½ï¿½Ö½ï¿½ï¿½ï¿½(ï¿½ï¿½ï¿½256),ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¦ï¿½Ã³ï¿½ï¿½ï¿½ï¿½ï¿½Ò³ï¿½ï¿½Ê£ï¿½ï¿½ï¿½Ö½ï¿½ï¿½ï¿½!!!
 void W25QXX_Write_Page(uint8_t *pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite)
 {
 	uint8_t cmd[5];
@@ -415,31 +418,31 @@ void W25QXX_Write_Page(uint8_t *pBuffer, uint32_t WriteAddr, uint16_t NumByteToW
 	W25QXX_Write_Enable(); // SET WEL
 	W25QXX_Wait_Busy();
 
-	CS_Enable();											 //Ê¹ÄÜÆ÷¼þ
-	HAL_SPI_Transmit(&hspi1, cmd, 4, 20);					 //·¢ËÍÐ´Ò³ÃüÁî
-	HAL_SPI_Transmit(&hspi1, pBuffer, NumByteToWrite, 4000); //·¢ËÍÒªÐ´ÈëµÄÊý¾ÝÖ¸Áî+µØÖ·
+	CS_Enable();											 //Ê¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	HAL_SPI_Transmit(&hspi1, cmd, 4, 20);					 //ï¿½ï¿½ï¿½ï¿½Ð´Ò³ï¿½ï¿½ï¿½ï¿½
+	HAL_SPI_Transmit(&hspi1, pBuffer, NumByteToWrite, 4000); //ï¿½ï¿½ï¿½ï¿½ÒªÐ´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½+ï¿½ï¿½Ö·
 
-	CS_Disable();		//È¡ÏûÆ¬Ñ¡
-	W25QXX_Wait_Busy(); //µÈ´ýÐ´Èë½áÊø
+	CS_Disable();		//È¡ï¿½ï¿½Æ¬Ñ¡
+	W25QXX_Wait_Busy(); //ï¿½È´ï¿½Ð´ï¿½ï¿½ï¿½ï¿½ï¿½
 }
 
-//ÎÞ¼ìÑéÐ´SPI FLASH
-//±ØÐëÈ·±£ËùÐ´µÄµØÖ··¶Î§ÄÚµÄÊý¾ÝÈ«²¿Îª0XFF,·ñÔòÔÚ·Ç0XFF´¦Ð´ÈëµÄÊý¾Ý½«Ê§°Ü!
-//¾ßÓÐ×Ô¶¯»»Ò³¹¦ÄÜ
-//ÔÚÖ¸¶¨µØÖ·¿ªÊ¼Ð´ÈëÖ¸¶¨³¤¶ÈµÄÊý¾Ý,µ«ÊÇÒªÈ·±£µØÖ·²»Ô½½ç!
-// pBuffer:Êý¾Ý´æ´¢Çø
-// WriteAddr:¿ªÊ¼Ð´ÈëµÄµØÖ·(24bit)
-// NumByteToWrite:ÒªÐ´ÈëµÄ×Ö½ÚÊý(×î´ó65535)
+//ï¿½Þ¼ï¿½ï¿½ï¿½Ð´SPI FLASH
+//ï¿½ï¿½ï¿½ï¿½È·ï¿½ï¿½ï¿½ï¿½Ð´ï¿½Äµï¿½Ö·ï¿½ï¿½Î§ï¿½Úµï¿½ï¿½ï¿½ï¿½ï¿½È«ï¿½ï¿½Îª0XFF,ï¿½ï¿½ï¿½ï¿½ï¿½Ú·ï¿½0XFFï¿½ï¿½Ð´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý½ï¿½Ê§ï¿½ï¿½!
+//ï¿½ï¿½ï¿½ï¿½ï¿½Ô¶ï¿½ï¿½ï¿½Ò³ï¿½ï¿½ï¿½ï¿½
+//ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½Ê¼Ð´ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½Èµï¿½ï¿½ï¿½ï¿½ï¿½,ï¿½ï¿½ï¿½ï¿½ÒªÈ·ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½Ô½ï¿½ï¿½!
+// pBuffer:ï¿½ï¿½ï¿½Ý´æ´¢ï¿½ï¿½
+// WriteAddr:ï¿½ï¿½Ê¼Ð´ï¿½ï¿½Äµï¿½Ö·(24bit)
+// NumByteToWrite:ÒªÐ´ï¿½ï¿½ï¿½ï¿½Ö½ï¿½ï¿½ï¿½(ï¿½ï¿½ï¿½65535)
 // CHECK OK
 void W25QXX_Write_NoCheck(uint8_t *pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite)
 {
 	uint16_t pageremain;
 	uint16_t NumByteToWriteNow;
-	pageremain = NumByteOfPage - WriteAddr % NumByteOfPage; //µ¥Ò³Ê£ÓàµÄ×Ö½ÚÊý
+	pageremain = NumByteOfPage - WriteAddr % NumByteOfPage; //ï¿½ï¿½Ò³Ê£ï¿½ï¿½ï¿½ï¿½Ö½ï¿½ï¿½ï¿½
 	NumByteToWriteNow = NumByteToWrite;
 	if (NumByteToWrite <= pageremain)
 	{
-		pageremain = NumByteToWriteNow; //²»´óÓÚ256¸ö×Ö½Ú
+		pageremain = NumByteToWriteNow; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½256ï¿½ï¿½ï¿½Ö½ï¿½
 	}
 	while (1)
 	{
@@ -447,43 +450,41 @@ void W25QXX_Write_NoCheck(uint8_t *pBuffer, uint32_t WriteAddr, uint16_t NumByte
 
 		if (NumByteToWriteNow == pageremain)
 		{
-			// printf("Write_No_CHECK Finished!!\r\n");	//²âÊÔÓÃ
-			break; //Ð´Èë½áÊøÁË
+			// printf("Write_No_CHECK Finished!!\r\n");	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+			break; //Ð´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		}
 		else // NumByteToWrite>pageremain
 		{
 			pBuffer += pageremain;
 			WriteAddr += pageremain;
-			NumByteToWriteNow -= pageremain; //¼õÈ¥ÒÑ¾­Ð´ÈëÁËµÄ×Ö½ÚÊý
+			NumByteToWriteNow -= pageremain; //ï¿½ï¿½È¥ï¿½Ñ¾ï¿½Ð´ï¿½ï¿½ï¿½Ëµï¿½ï¿½Ö½ï¿½ï¿½ï¿½
 
 			if (NumByteToWriteNow > NumByteOfPage)
 			{
-				pageremain = NumByteOfPage; //Ò»´Î¿ÉÒÔÐ´Èë256¸ö×Ö½Ú
+				pageremain = NumByteOfPage; //Ò»ï¿½Î¿ï¿½ï¿½ï¿½Ð´ï¿½ï¿½256ï¿½ï¿½ï¿½Ö½ï¿½
 			}
 			else
 			{
-				pageremain = NumByteToWriteNow; //²»¹»256¸ö×Ö½ÚÁË
+				pageremain = NumByteToWriteNow; //ï¿½ï¿½ï¿½ï¿½256ï¿½ï¿½ï¿½Ö½ï¿½ï¿½ï¿½
 			}
 		}
 	};
 }
 /*   APP               */
-FATFS fs;
-FIL file;
-FRESULT res;
+
 void mount_disk(void)
 {
-	res = f_mount(&fs, "0:", 1); //¹ÒÔØ
-	if (res == FR_NO_FILESYSTEM) //Ã»ÓÐÎÄ¼þÏµÍ³£¬¸ñÊ½»¯
+	res = f_mount(&fs, "0:", 1); //ï¿½ï¿½ï¿½ï¿½
+	if (res == FR_NO_FILESYSTEM) //Ã»ï¿½ï¿½ï¿½Ä¼ï¿½ÏµÍ³ï¿½ï¿½ï¿½ï¿½Ê½ï¿½ï¿½
 	{
 		OLED_Clear();
 		OLED_ShowString(0, 0, "No file Sys ", 16);
-		res = f_mkfs("", 0, 0); //¸ñÊ½»¯
+		res = f_mkfs("", 0, 0); //ï¿½ï¿½Ê½ï¿½ï¿½
 		if (res == FR_OK)
 		{
-			// printf("¸ñÊ½»¯³É¹¦! \r\n");
-			res = f_mount(NULL, "0:", 1); //¸ñÊ½»¯ºóÏÈÈ¡Ïû¹ÒÔØ
-			res = f_mount(&fs, "0:", 1);  //ÖØÐÂ¹ÒÔØ
+			// printf("ï¿½ï¿½Ê½ï¿½ï¿½ï¿½É¹ï¿½! \r\n");
+			res = f_mount(NULL, "0:", 1); //ï¿½ï¿½Ê½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+			res = f_mount(&fs, "0:", 1);  //ï¿½ï¿½ï¿½Â¹ï¿½ï¿½ï¿½
 			if (res == FR_OK)
 			{
 				// OLED_ShowString(0, 0, "flash mount ok ", 16);
@@ -497,7 +498,7 @@ void mount_disk(void)
 	else if (res == FR_OK)
 	{
 		// OLED_ShowString(0, 0, "flash mount ok ", 16);
-		//  printf("¹ÒÔØ³É¹¦! \r\n");
+		//  printf("ï¿½ï¿½ï¿½Ø³É¹ï¿½! \r\n");
 	}
 	else
 	{
@@ -511,29 +512,29 @@ void WritetoSD(char file_name[], uint8_t write_buff[], uint8_t bufSize)
 	if ((res & FR_DENIED) == FR_DENIED)
 	{
 		OLED_ShowString(0, 0, "flash full ", 16);
-		// printf("¿¨´æ´¢ÒÑÂú£¬Ð´ÈëÊ§°Ü!\r\n");
+		// printf("ï¿½ï¿½ï¿½æ´¢ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð´ï¿½ï¿½Ê§ï¿½ï¿½!\r\n");
 	}
-	f_lseek(&file, f_size(&file)); //È·±£Ð´´ÊÐ´Èë²»»á¸²¸ÇÖ®Ç°µÄÊý¾Ý
+	f_lseek(&file, f_size(&file)); //È·ï¿½ï¿½Ð´ï¿½ï¿½Ð´ï¿½ë²»ï¿½á¸²ï¿½ï¿½Ö®Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	if (res == FR_OK)
 	{
-		// printf("´ò¿ª³É¹¦/´´½¨ÎÄ¼þ³É¹¦£¡ \r\n");
-		res = f_write(&file, write_buff, bufSize, &Bw); //Ð´Êý¾Ýµ½SD¿¨
+		// printf("ï¿½ò¿ª³É¹ï¿½/ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½É¹ï¿½ï¿½ï¿½ \r\n");
+		res = f_write(&file, write_buff, bufSize, &Bw); //Ð´ï¿½ï¿½ï¿½Ýµï¿½SDï¿½ï¿½
 		if (res == FR_OK)
 		{
-			 OLED_ShowString(0, 0, "Write ok ", 8);
-			//  printf("ÎÄ¼þÐ´Èë³É¹¦£¡ \r\n");
+			// OLED_ShowString(0, 0, "Write ok ", 8);
+			//  printf("ï¿½Ä¼ï¿½Ð´ï¿½ï¿½É¹ï¿½ï¿½ï¿½ \r\n");
 		}
 		else
 		{
 			OLED_ShowString(0, 0, "write fail", 16);
-			// printf("ÎÄ¼þÐ´ÈëÊ§°Ü£¡ \r\n");
+			// printf("ï¿½Ä¼ï¿½Ð´ï¿½ï¿½Ê§ï¿½Ü£ï¿½ \r\n");
 		}
 	}
 	else
 	{
 		OLED_ShowString(0, 0, "file open fail ", 16);
-		// printf("´ò¿ªÎÄ¼þÊ§°Ü!\r\n");
+		// printf("ï¿½ï¿½ï¿½Ä¼ï¿½Ê§ï¿½ï¿½!\r\n");
 	}
-	f_close(&file); //¹Ø±ÕÎÄ¼þ
-	 //f_mount(NULL, "0:", 1); //È¡Ïû¹ÒÔØ
+	f_close(&file); //ï¿½Ø±ï¿½ï¿½Ä¼ï¿½
+	 //f_mount(NULL, "0:", 1); //È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 }

@@ -164,8 +164,8 @@ void Pack_ID(uint8_t page_index, uint8_t key_val)
 		/*包号：0~999*/
 		OLED_ShowCHinese(0, 4, 0);
 		OLED_ShowCHinese(16, 4, 1);
-		string_input(c_Pack_ID, '\0', 10);
-		string_input(input_buff, '\0', 10);
+		string_input(c_Pack_ID, '\0', sizeof(c_Pack_ID));
+		string_input(input_buff, '\0', sizeof(input_buff));
 		file_name_bit = 0;
 	}
 	if ((key_val != KEY_NONE) && (((key_val - 1) % 3) == 0))
@@ -188,10 +188,21 @@ void Pack_ID(uint8_t page_index, uint8_t key_val)
 					}
 					++i;
 				}
+				file_name[file_name_bit] = '.';
+				++file_name_bit;
+				file_name[file_name_bit] = 'C';
+				++file_name_bit;
+				file_name[file_name_bit] = 'S';
+				++file_name_bit;
+				file_name[file_name_bit] = 'V';
+				WritetoSD(file_name, "包号,长度,厚度\n", 22);
 				// file_name[file_name_bit] = '-';
 				//++file_name_bit;
 				is_main_menu = 1;
 				OLED_Clear();
+				input_buff[Bit_num] = ',';
+				++Bit_num;
+				WritetoSD(file_name, input_buff, Bit_num);
 				func_index = _Length_Input;
 				current_operation_func = table[func_index].current_operation;
 				(*current_operation_func)(func_index, KEY_NONE); //执行当前索引对应的函数
@@ -255,6 +266,9 @@ void Length_Input(uint8_t page_index, uint8_t key_val)
 								file_name_bit += i;
 								file_name[file_name_bit] = '-';
 								++file_name_bit; */
+				input_buff[Bit_num] = ',';
+				++Bit_num;
+				WritetoSD(file_name, input_buff, Bit_num);
 				is_main_menu = 1;
 				OLED_Clear();
 				func_index = _Thickness_Input;
@@ -310,18 +324,10 @@ void Thickness_Input(uint8_t page_index, uint8_t key_val)
 									++i;
 								}
 								file_name_bit += i; */
+				input_buff[Bit_num] = ',';
+				++Bit_num;
+				WritetoSD(file_name, input_buff, Bit_num);
 				is_main_menu = 1;
-				file_name[file_name_bit] = '.';
-				++file_name_bit;
-				file_name[file_name_bit] = 'C';
-				++file_name_bit;
-				file_name[file_name_bit] = 'S';
-				++file_name_bit;
-				file_name[file_name_bit] = 'V';
-				OLED_ShowString(0, 0, file_name, 8);
-				WritetoSD(file_name, "包号,长度,厚度\n", 21);
-				WritetoSD(file_name, c_Pack_ID, 10);
-				WritetoSD(file_name, ",", 2);
 				func_index = _Width_Input;
 				current_operation_func = table[func_index].current_operation;
 				(*current_operation_func)(func_index, KEY_NONE); //执行当前索引对应的函数
@@ -375,15 +381,7 @@ void Width_Input(uint8_t page_index, uint8_t key_val)
 		OLED_ShowString(96, 7, "P:", 8);
 		OLED_ShowNum(112, 7, My_Pack.Pice_count, 3, 8);
 		OLED_ShowString(96, 3, "inch", 8);
-		string_input(temp, '\0', 9);
-		temp[7] = ',';
-		sprintf(temp, "%.3f", My_Pack.length);
-		WritetoSD(file_name, "temp", 5);
-		string_input(temp, '\0', 9);
-		temp[7] = '\n';
-		sprintf(temp, "%.3f", My_Pack.thickness);
-		WritetoSD(file_name, temp, sizeof(temp));
-		WritetoSD(file_name, "宽度\n", 8);
+		WritetoSD(file_name, "\n宽度\n", 8);
 	}
 	if ((key_val != KEY_NONE) && (((key_val - 1) % 3) == 0))
 	{
@@ -396,10 +394,9 @@ void Width_Input(uint8_t page_index, uint8_t key_val)
 				My_Pack.all_width += My_Pack.width;
 				++My_Pack.Pice_count;
 				OLED_ShowNum(112, 7, My_Pack.Pice_count, 3, 8);
-
-				WritetoSD(file_name, input_buff, sizeof(input_buff));
-				WritetoSD(file_name, ",", 2);
-
+				input_buff[Bit_num] = ',';
+				++Bit_num;
+				WritetoSD(file_name, input_buff, Bit_num);
 				string_input(input_buff, '\0', 9);
 				sprintf(input_buff, "%.2f", My_Pack.width);
 				OLED_ShowString(16, 3, input_buff, 8);
@@ -422,17 +419,16 @@ void Width_Input(uint8_t page_index, uint8_t key_val)
 		else if (key_val == KEY_11_DOWN) //=
 		{
 			is_main_menu = 1;
-			WritetoSD(file_name, "\n总片数,", 12);
-			string_input(temp, '\n', 9);
-			// sprintf(temp, "%d", My_Pack.Pice_count);
+			WritetoSD(file_name, "\n总片数,总宽度\n", 22);
+			string_input(temp, '\0', 9);
+			sprintf(temp, "%.3f", My_Pack.Pice_count);
+			OLED_ShowString(0,0,temp,8);
 			WritetoSD(file_name, temp, sizeof(temp));
-			WritetoSD(file_name, ",总宽度,", 12);
-			string_input(temp, '\n', 9);
+			WritetoSD(file_name, ",", 2);
+			string_input(temp, '\0', 9);
 			sprintf(temp, "%.3f", My_Pack.all_width); //保留小数点后3位小数，打印到数组中
+			OLED_ShowString(0,0,temp,8);
 			WritetoSD(file_name, temp, sizeof(temp));
-			// sprintf(My_Pack.All_Volume, "%.3f", My_Pack.Volume); //保留小数点后3位小数，打印到Data数组中
-			//  WritetoSD(My_Pack.Pack_File_Name, My_Pack.All_Volume, sizeof(My_Pack.All_Volume));
-			OLED_Clear();
 			func_index = _short_Input;
 			current_operation_func = table[func_index].current_operation;
 			(*current_operation_func)(func_index, KEY_NONE); //执行当前索引对应的函数
@@ -450,11 +446,12 @@ void short_Input(uint8_t page_index, uint8_t key_val)
 	{
 		is_main_menu = 0;
 		OLED_Clear();
+		OLED_ShowString(0, 2, "s  l:", 8);
 		/*短板：*/
-		// OLED_ShowString(2, 0, file_name, 8);
-		WritetoSD(file_name, "\n短板长度,短板数量\n", 28);
+		OLED_ShowString(2, 0, file_name, 8);
+		WritetoSD(file_name, "短板长度,短板数量\n", 28);
 		string_input(input_buff, '\0', 10);
-		OLED_ShowString(0, 0, "short length:", 8);
+		
 	}
 	if ((key_val != KEY_NONE) && (((key_val - 1) % 3) == 0))
 	{
@@ -465,8 +462,9 @@ void short_Input(uint8_t page_index, uint8_t key_val)
 			if (My_Pack.short_length > 0)
 			{
 				is_main_menu = 1;
-				//WritetoSD(file_name, input_buff, sizeof(input_buff));
-				OLED_Clear();
+				input_buff[Bit_num] = ',';
+				++Bit_num;
+				WritetoSD(file_name, input_buff, Bit_num);
 				func_index = _short_num_Input;
 				current_operation_func = table[func_index].current_operation;
 				(*current_operation_func)(func_index, KEY_NONE); //执行当前索引对应的函数
@@ -500,20 +498,18 @@ void short_num_Input(uint8_t page_index, uint8_t key_val)
 		/*短板：*/
 		// OLED_ShowString(2, 0, file_name, 8);
 		string_input(input_buff, '\0', 10);
-		// WritetoSD(file_name, ",", 2);
 		OLED_ShowString(0, 0, "short num:", 8);
 	}
 	if ((key_val != KEY_NONE) && (((key_val - 1) % 3) == 0))
 	{
 		beep();
-		if (key_val == KEY_12_DOWN) // 
+		if (key_val == KEY_12_DOWN) //
 		{
-			OLED_ShowString(0, 4, "in   424:", 8);
 			My_Pack.short_Pice_count = atof(input_buff);
 			if (My_Pack.short_Pice_count > 0)
 			{
 				is_main_menu = 1;
-				WritetoSD(file_name, input_buff, sizeof(input_buff));
+				WritetoSD(file_name, input_buff, Bit_num);
 				WritetoSD(file_name, "\n总体积,", 12);
 				OLED_Clear();
 				func_index = _Volume;
@@ -544,12 +540,17 @@ void Volume_show(uint8_t page_index, uint8_t key_val)
 {
 	if (is_main_menu)
 	{
-		OLED_Clear();
+		key_val = KEY_NONE;
+		bsp_GetKey();
 		show_frame();
 		/*体积：*/
 		OLED_ShowCHinese(0, 4, 6);
 		OLED_ShowCHinese(16, 4, 7);
+		My_Pack.Volume = My_Pack.all_width * My_Pack.length / 12 - My_Pack.all_width / My_Pack.Pice_count * My_Pack.short_Pice_count / 12;
+		sprintf(My_Pack.All_Volume, "%.3f", My_Pack.Volume); //保留小数点后3位小数，打印到Data数组中
+
 		OLED_ShowString(40, 4, My_Pack.All_Volume, 16);
+		WritetoSD(file_name, My_Pack.All_Volume, sizeof(My_Pack.All_Volume));
 		is_main_menu = 0;
 	}
 	if ((key_val != KEY_NONE) && (((key_val - 1) % 3) == 0))
