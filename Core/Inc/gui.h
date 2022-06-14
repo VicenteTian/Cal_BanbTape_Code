@@ -20,13 +20,16 @@ typedef struct
 //各界面的索引值
 typedef struct
 {
-    uint8_t Pack_File_Name[8]; //包文件名
-    double length;             //长度
-    double width;              //宽度
-    double thickness;          //厚度
-    double Volume;             //体积
-    uint8_t Pice_count;        //工件片数
-    uint8_t All_Volume[20];     //总体积
+    uint8_t ceng;             //层数
+    float length;             //长度
+    float width;              //宽度
+    float thickness;          //厚度
+    double all_width;         //总宽度
+    uint8_t Pice_count;       //总片数
+    uint8_t short_Pice_count; //短板数
+    float short_length;       //短板长度
+    double Volume;            //体积
+    uint8_t All_Volume[20];   //总体积
 } Package;
 enum
 {
@@ -56,5 +59,6 @@ void Width_Input(uint8_t page_index, uint8_t key_val);
 void Volume_show(uint8_t page_index, uint8_t key_val);
 void string_input(uint8_t string_buff[], uint8_t char_input, uint8_t n);
 void show_frame(void);
-void data_input(uint8_t key_val);
+void data_input(uint8_t key_val, uint8_t max_bit_num);
+void data_del(void);
 #endif

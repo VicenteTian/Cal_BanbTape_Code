@@ -10,19 +10,21 @@
 #include "W25QXX.h"
 #include <string.h>
 __IO uint8_t is_main_menu = 1;
-__IO uint8_t is_show= 0;
-Package My_Pack = {"", 0.0, 0.0, 0.0, 0.0, 0, ""};
-char c_Pack_ID[4] = {' ', ' ', ' ', '\0'};
-char input_buff[9] = {' ', ' ', ' ', ' ', ' ', ' ', ' ', ',', '\0'};
+__IO uint8_t is_show = 0;
+Package My_Pack = {0, 0, 0, 0, 0, 0, 0, 0, 0, " "};
+char c_Pack_ID[10] = {0};
+char file_name[28] = {0};
+__IO uint8_t file_name_bit = 0;
+char input_buff[10] = {0};
 uint8_t Bit_num = 0;
 const unsigned char up[] =
 	{0x08, 0x0C, 0x0E, 0x0F, 0x0F, 0x0E, 0x0C, 0x08};
 const unsigned char down[] =
 	{0x01, 0x03, 0x07, 0x0F, 0x0F, 0x07, 0x03, 0x01};
-static uint8_t func_index = _S_Pack_ID;					 //å½“å‰é¡µé¢ç´¢å¼•å€¼
-static uint8_t last_index = _S_Pack_ID;					 //ä¸Šä¸€ä¸ªç•Œé¢ç´¢å¼•å€¼
-static void (*current_operation_func)(uint8_t, uint8_t); //å®šä¹‰ä¸€ä¸ªå‡½æ•°æŒ‡é’ˆ
-														 // ç´¢å¼•è¡¨
+static uint8_t func_index = _S_Pack_ID;					 //µ±Ç°Ò³ÃæË÷ÒýÖµ
+static uint8_t last_index = _S_Pack_ID;					 //ÉÏÒ»¸ö½çÃæË÷ÒýÖµ
+static void (*current_operation_func)(uint8_t, uint8_t); //¶¨ÒåÒ»¸öº¯ÊýÖ¸Õë
+														 // Ë÷Òý±í
 Main_Menu table[20] =
 	{
 		// Cur_Index,        previous,       next,            enter,          back,   (*current_operation)(u8,u8)
@@ -31,7 +33,7 @@ Main_Menu table[20] =
 		{_S_Thickness_Input, _S_Length_Input, _S_Width_Input, _Thickness_Input, _S_Pack_ID, S_Thickness_Input},
 		{_S_Width_Input, _S_Thickness_Input, _S_Volume, _Width_Input, _S_Pack_ID, S_Width_Input},
 		{_S_Volume, _S_Width_Input, _S_Pack_ID, _Volume, _S_Pack_ID, S_Volume},
-		//å­èœå•
+		//×Ó²Ëµ¥
 		{_Pack_ID, _Pack_ID, _Pack_ID, _Pack_ID, _Pack_ID, Pack_ID},
 		{_Length_Input, _Length_Input, _Length_Input, _Length_Input, _Length_Input, Length_Input},
 		{_Thickness_Input, _Thickness_Input, _Thickness_Input, _Thickness_Input, _Thickness_Input, Thickness_Input},
@@ -39,117 +41,114 @@ Main_Menu table[20] =
 		{_Volume, _Volume, _Volume, _S_Volume, _S_Pack_ID, Volume_show},
 };
 /*
-å‡½æ•°åŠŸèƒ½ï¼šåˆ·æ–°ç•Œé¢
-å‚æ•°ï¼šæ— 
-è¿”å›žå€¼ï¼šæ— 
+º¯Êý¹¦ÄÜ£ºË¢ÐÂ½çÃæ
+²ÎÊý£ºÎÞ
+·µ»ØÖµ£ºÎÞ
 */
 void GUI_Refresh(void)
 {
 	uint8_t key_val = bsp_GetKey();
-	
-	if ((key_val != KEY_NONE) && (is_main_menu)&&(((key_val - 1) % 3) == 0)) //åªæœ‰æŒ‰é”®æŒ‰ä¸‹ä¸”åœ¨ä¸»èœå•æ¨¡å¼æ‰åˆ·å±
+
+	if ((key_val != KEY_NONE) && (is_main_menu) && (((key_val - 1) % 3) == 0)) //Ö»ÓÐ°´¼ü°´ÏÂÇÒÔÚÖ÷²Ëµ¥Ä£Ê½²ÅË¢ÆÁ
 	{
-		beep();	
-		
-		OLED_ShowNum(2,0, (key_val - 1) / 3, 3, 8);
-		is_show=0;
-		last_index = func_index; //æ›´æ–°ä¸Šä¸€ç•Œé¢ç´¢å¼•å€¼
+		beep();
+		is_show = 0;
+		last_index = func_index; //¸üÐÂÉÏÒ»½çÃæË÷ÒýÖµ
 		switch (key_val)
 		{
 		case KEY_13_DOWN:
-			WritetoSD("test.txt", "12345\n", 6);
-			func_index = table[func_index].previous; //æ›´æ–°ç´¢å¼•å€¼ ä¸Š
+			func_index = table[func_index].previous; //¸üÐÂË÷ÒýÖµ ÉÏ
 			break;
 		case KEY_14_DOWN:
 
-			func_index = table[func_index].back; //æ›´æ–°ç´¢å¼•å€¼    å³
+			func_index = table[func_index].back; //¸üÐÂË÷ÒýÖµ    ÓÒ
 			break;
 		case KEY_15_DOWN:
-			
-			func_index = table[func_index].next; //æ›´æ–°ç´¢å¼•å€¼     ä¸‹
+
+			func_index = table[func_index].next; //¸üÐÂË÷ÒýÖµ     ÏÂ
 			break;
 		case KEY_12_DOWN:
-			
-			func_index = table[func_index].enter; //æ›´æ–°ç´¢å¼•å€¼     å·¦
+
+			func_index = table[func_index].enter; //¸üÐÂË÷ÒýÖµ     ×ó
 			break;
 		}
 	}
 	current_operation_func = table[func_index].current_operation;
-	(*current_operation_func)(func_index, key_val); //æ‰§è¡Œå½“å‰ç´¢å¼•å¯¹åº”çš„å‡½æ•°
+	(*current_operation_func)(func_index, key_val); //Ö´ÐÐµ±Ç°Ë÷Òý¶ÔÓ¦µÄº¯Êý
 }
 /*
-å‡½æ•°åŠŸèƒ½ï¼šæ˜¾ç¤ºåŒ…è¾“å…¥
-å‚æ•°ï¼šu8 page_index,u8 key_val
-è¿”å›žå€¼ï¼šæ— 
+º¯Êý¹¦ÄÜ£ºÏÔÊ¾°üÊäÈë
+²ÎÊý£ºu8 page_index,u8 key_val
+·µ»ØÖµ£ºÎÞ
 */
 void S_Pack_ID(uint8_t page_index, uint8_t key_val)
 {
-	if(is_show==0)
+	if (is_show == 0)
 	{
-	OLED_ShowString(16, 3, "1.", 16);
-	/*åŒ…å·*/
-	OLED_ShowCHinese(64, 3, 0);
-	OLED_ShowCHinese(80, 3, 1);
-	/*ä¸Šä¸‹ç¿»é¡µ*/
-	OLED_DrawBMP(60, 0, 68, 1, up);
-	OLED_DrawBMP(60, 7, 68, 8, down);
-		is_show=1;
+		OLED_ShowString(16, 3, "1.", 16);
+		/*°üºÅ*/
+		OLED_ShowCHinese(64, 3, 0);
+		OLED_ShowCHinese(80, 3, 1);
+		/*ÉÏÏÂ·­Ò³*/
+		OLED_DrawBMP(60, 0, 68, 1, up);
+		OLED_DrawBMP(60, 7, 68, 8, down);
+		is_show = 1;
 	}
 }
 void S_Length_Input(uint8_t page_index, uint8_t key_val)
 {
-		if(is_show==0)
+	if (is_show == 0)
 	{
-	OLED_ShowString(16, 3, "2.", 16);
-	/*é•¿åº¦*/
-	OLED_ShowCHinese(64, 3, 2);
-	OLED_ShowCHinese(80, 3, 5);
-	/*ä¸Šä¸‹ç¿»é¡µ*/
-	OLED_DrawBMP(60, 0, 68, 1, up);
-	OLED_DrawBMP(60, 7, 68, 8, down);
-				is_show=1;
+		OLED_ShowString(16, 3, "2.", 16);
+		/*³¤¶È*/
+		OLED_ShowCHinese(64, 3, 2);
+		OLED_ShowCHinese(80, 3, 5);
+		/*ÉÏÏÂ·­Ò³*/
+		OLED_DrawBMP(60, 0, 68, 1, up);
+		OLED_DrawBMP(60, 7, 68, 8, down);
+		is_show = 1;
 	}
 }
 void S_Thickness_Input(uint8_t page_index, uint8_t key_val)
 {
-		if(is_show==0)
+	if (is_show == 0)
 	{
-	OLED_ShowString(16, 3, "3.", 16);
-	/*åŽšåº¦*/
-	OLED_ShowCHinese(64, 3, 4);
-	OLED_ShowCHinese(80, 3, 5);
-	/*ä¸Šä¸‹ç¿»é¡µ*/
-	OLED_DrawBMP(60, 0, 68, 1, up);
-	OLED_DrawBMP(60, 7, 68, 8, down);
-				is_show=1;
+		OLED_ShowString(16, 3, "3.", 16);
+		/*ºñ¶È*/
+		OLED_ShowCHinese(64, 3, 4);
+		OLED_ShowCHinese(80, 3, 5);
+		/*ÉÏÏÂ·­Ò³*/
+		OLED_DrawBMP(60, 0, 68, 1, up);
+		OLED_DrawBMP(60, 7, 68, 8, down);
+		is_show = 1;
 	}
 }
 void S_Width_Input(uint8_t page_index, uint8_t key_val)
 {
-		if(is_show==0)
+	if (is_show == 0)
 	{
-	OLED_ShowString(16, 3, "4.", 16);
-	/*å®½åº¦*/
-	OLED_ShowCHinese(64, 3, 3);
-	OLED_ShowCHinese(80, 3, 5);
-	/*ä¸Šä¸‹ç¿»é¡µ*/
-	OLED_DrawBMP(60, 0, 68, 1, up);
-	OLED_DrawBMP(60, 7, 68, 8, down);
-				is_show=1;
+		OLED_ShowString(16, 3, "4.", 16);
+		/*¿í¶È*/
+		OLED_ShowCHinese(64, 3, 3);
+		OLED_ShowCHinese(80, 3, 5);
+		/*ÉÏÏÂ·­Ò³*/
+		OLED_DrawBMP(60, 0, 68, 1, up);
+		OLED_DrawBMP(60, 7, 68, 8, down);
+		is_show = 1;
 	}
 }
 void S_Volume(uint8_t page_index, uint8_t key_val)
 {
-		if(is_show==0)
+	if (is_show == 0)
 	{
-	OLED_ShowString(16, 3, "5.", 16);
-	/*ä½“ç§¯*/
-	OLED_ShowCHinese(64, 3, 6);
-	OLED_ShowCHinese(80, 3, 7);
-	/*ä¸Šä¸‹ç¿»é¡µ*/
-	OLED_DrawBMP(60, 0, 68, 1, up);
-	OLED_DrawBMP(60, 7, 68, 8, down);
-				is_show=1;
+		OLED_ShowString(16, 3, "5.", 16);
+		/*Ìå»ý*/
+		OLED_ShowCHinese(64, 3, 6);
+		OLED_ShowCHinese(80, 3, 7);
+		/*ÉÏÏÂ·­Ò³*/
+		OLED_DrawBMP(60, 0, 68, 1, up);
+		OLED_DrawBMP(60, 7, 68, 8, down);
+		is_show = 1;
 	}
 }
 void Pack_ID(uint8_t page_index, uint8_t key_val)
@@ -160,81 +159,63 @@ void Pack_ID(uint8_t page_index, uint8_t key_val)
 		bsp_GetKey();
 		OLED_Clear();
 		is_main_menu = 0;
-		/*åŒ…å·ï¼š0~999*/
-		OLED_ShowCHinese(0, 0, 0);
-		OLED_ShowCHinese(16, 0, 1);
-		OLED_ShowString(32, 0, ": 0-999", 16);
-		OLED_ShowString(36, 4, "---", 16);
-		string_input(My_Pack.Pack_File_Name, '\0', 8);
+		/*°üºÅ£º0~999*/
+		OLED_ShowCHinese(0, 4, 0);
+		OLED_ShowCHinese(16, 4, 1);
+		string_input(c_Pack_ID, '\0', 10);
+		string_input(input_buff, '\0', 10);
+		file_name_bit = 0;
 	}
 	if ((key_val != KEY_NONE) && (((key_val - 1) % 3) == 0))
 	{
 		beep();
-		if (key_val == KEY_12_DOWN) // F1
+		if (key_val == KEY_12_DOWN) // F1È·ÈÏ
 		{
 			if (Bit_num > 0)
 			{
 				memset(&My_Pack, 0, sizeof(My_Pack));
-				is_main_menu = 1;
-				char *File_name = (char *)malloc(sizeof(char) * (Bit_num + 5));
-				char *title1 = (char *)malloc(sizeof(char) * (Bit_num + 5));
-				for (uint8_t i = 0; i < Bit_num; i++)
+				string_input(file_name, '\0', 28);
+				uint8_t i = 0;
+				while ((input_buff[i] != '\0')&&(input_buff[i] != ' '))
 				{
-					File_name[i] = c_Pack_ID[3 - Bit_num + i];
-					title1[i] = c_Pack_ID[3 - Bit_num + i];
+					c_Pack_ID[i] = input_buff[i];
+					file_name[i] = input_buff[i];
+					++i;
+					++file_name_bit;
 				}
-				char file_end[5] = {'.', 'C', 'S', 'V', '\0'};
-				//strcat(File_name, file_end);
-				//strcpy(My_Pack.Pack_File_Name, File_name);
-				//WritetoSD(File_name, "pack\n", sizeof(c_Pack_ID));
-			//	WritetoSD(File_name, c_Pack_ID, sizeof(c_Pack_ID));
-				//WritetoSD(File_name, "\nLongth,Thickness,Width\n", sizeof(char) * 25);
-				free(File_name);
+				file_name[file_name_bit] = '-';
+				++file_name_bit;
+				is_main_menu = 1;
 				OLED_Clear();
-				My_Pack.Pice_count = 0; //ç‰‡æ•°æ¸…0
 				func_index = _Length_Input;
 				current_operation_func = table[func_index].current_operation;
-				(*current_operation_func)(func_index, KEY_NONE); //æ‰§è¡Œå½“å‰ç´¢å¼•å¯¹åº”çš„å‡½æ•°
+				(*current_operation_func)(func_index, KEY_NONE); //Ö´ÐÐµ±Ç°Ë÷Òý¶ÔÓ¦µÄº¯Êý
 				Bit_num = 0;
 			}
+			else
+			{
+				is_main_menu = 1;
+				OLED_Clear();
+				func_index = _S_Pack_ID;
+				current_operation_func = table[func_index].current_operation;
+				(*current_operation_func)(func_index, KEY_NONE); //Ö´ÐÐµ±Ç°Ë÷Òý¶ÔÓ¦µÄº¯Êý
+			}
 		}
-		else if (key_val == KEY_13_DOWN)
+		else if (key_val == KEY_13_DOWN) //Çå³ý
 		{
-			//string_input(c_Pack_ID, ' ', 3);
-			OLED_ShowString(36, 3, c_Pack_ID, 16);
-			Bit_num = 0;
+			data_del();
 		}
-		else if (key_val == KEY_11_DOWN) //#
+		else if (key_val == KEY_14_DOWN) //·µ»Ø
 		{
 			is_main_menu = 1;
 			OLED_Clear();
 			func_index = _S_Pack_ID;
 			current_operation_func = table[func_index].current_operation;
-			(*current_operation_func)(func_index, KEY_NONE); //æ‰§è¡Œå½“å‰ç´¢å¼•å¯¹åº”çš„å‡½æ•°
+			(*current_operation_func)(func_index, KEY_NONE); //Ö´ÐÐµ±Ç°Ë÷Òý¶ÔÓ¦µÄº¯Êý
 		}
-		else
+		else //ÆÕÍ¨Êý×ÖÊäÈë
 		{
-			if (Bit_num > 2)
-			{
-				Bit_num = 2;
-			}
-			if (Bit_num == 0)
-			{
-				c_Pack_ID[2] = (key_val - 1) / 3 + '0';
-			}
-			else if (Bit_num == 1)
-			{
-				c_Pack_ID[1] = c_Pack_ID[2];
-				c_Pack_ID[2] = (key_val - 1) / 3 + '0';
-			}
-			else
-			{
-				c_Pack_ID[0] = c_Pack_ID[1];
-				c_Pack_ID[1] = c_Pack_ID[2];
-				c_Pack_ID[2] = (key_val - 1) / 3 + '0';
-			}
-			OLED_ShowString(36, 3, c_Pack_ID, 16);
-			++Bit_num;
+			data_input(key_val, 9);
 		}
 	}
 }
@@ -245,44 +226,53 @@ void Length_Input(uint8_t page_index, uint8_t key_val)
 		is_main_menu = 0;
 		OLED_Clear();
 		show_frame();
-		/*é•¿åº¦ï¼š*/
+		/*³¤¶È£º*/
 		OLED_ShowCHinese(0, 4, 2);
 		OLED_ShowCHinese(16, 4, 5);
-		//string_input(input_buff, ' ', 7);
+		OLED_ShowString(112, 5, "ft", 8);
+		OLED_ShowString(0, 0, file_name, 8);
+		string_input(input_buff, '\0', 10);
 	}
 	if ((key_val != KEY_NONE) && (((key_val - 1) % 3) == 0))
 	{
 		beep();
-		if (key_val == KEY_12_DOWN) // F1
+		if (key_val == KEY_12_DOWN) //È·ÈÏ
 		{
 			My_Pack.length = atof(input_buff);
 			if (My_Pack.length > 0)
 			{
+				uint8_t i = 0;
+				while ((input_buff[i] != '\0') && (input_buff[i] != '.')&&(input_buff[i] != ' '))
+				{
+					file_name[i + file_name_bit] = input_buff[i];
+					++i;
+				}
+				file_name_bit += i;
+				file_name[file_name_bit] = '-';
+				++file_name_bit;
 				is_main_menu = 1;
 				OLED_Clear();
 				func_index = _Thickness_Input;
 				current_operation_func = table[func_index].current_operation;
-				(*current_operation_func)(func_index, KEY_NONE); //æ‰§è¡Œå½“å‰ç´¢å¼•å¯¹åº”çš„å‡½æ•°
+				(*current_operation_func)(func_index, KEY_NONE); //Ö´ÐÐµ±Ç°Ë÷Òý¶ÔÓ¦µÄº¯Êý
 				Bit_num = 0;
 			}
 		}
-		else if (key_val == KEY_13_DOWN) // F2
+		else if (key_val == KEY_13_DOWN) // Çå³ý
 		{
-			//string_input(input_buff, ' ', 7);
-			OLED_ShowString(40, 4, input_buff, 16);
-			Bit_num = 0;
+			data_del();
 		}
-		else if (key_val == KEY_11_DOWN) //#
+		else if (key_val == KEY_14_DOWN) //·µ»Ø
 		{
 			is_main_menu = 1;
 			OLED_Clear();
 			func_index = _S_Length_Input;
 			current_operation_func = table[func_index].current_operation;
-			(*current_operation_func)(func_index, KEY_NONE); //æ‰§è¡Œå½“å‰ç´¢å¼•å¯¹åº”çš„å‡½æ•°
+			(*current_operation_func)(func_index, KEY_NONE); //Ö´ÐÐµ±Ç°Ë÷Òý¶ÔÓ¦µÄº¯Êý
 		}
 		else
 		{
-			data_input(key_val);
+			data_input(key_val, 6);
 		}
 	}
 }
@@ -293,44 +283,51 @@ void Thickness_Input(uint8_t page_index, uint8_t key_val)
 		is_main_menu = 0;
 		OLED_Clear();
 		show_frame();
-		/*åŽšåº¦ï¼š*/
+		/*ºñ¶È£º*/
 		OLED_ShowCHinese(0, 4, 4);
 		OLED_ShowCHinese(16, 4, 5);
-		string_input(input_buff, ' ', 7);
+		OLED_ShowString(96, 5, "inch", 8);
+		OLED_ShowString(0, 0, file_name, 8);
+		string_input(input_buff, '\0', 10);
 	}
 	if ((key_val != KEY_NONE) && (((key_val - 1) % 3) == 0))
 	{
 		beep();
-		if (key_val == KEY_12_DOWN) // F1
+		if (key_val == KEY_12_DOWN) // È·ÈÏ
 		{
 			My_Pack.thickness = atof(input_buff);
 			if (My_Pack.thickness > 0)
 			{
+				uint8_t i = 0;
+				while ((input_buff[i] != '\0') && (input_buff[i] != '.')&&(input_buff[i] != ' '))
+				{
+					file_name[i + file_name_bit] = input_buff[i];
+					++i;
+				}
+				file_name_bit += i;
 				is_main_menu = 1;
 				OLED_Clear();
 				func_index = _Width_Input;
 				current_operation_func = table[func_index].current_operation;
-				(*current_operation_func)(func_index, KEY_NONE); //æ‰§è¡Œå½“å‰ç´¢å¼•å¯¹åº”çš„å‡½æ•°
+				(*current_operation_func)(func_index, KEY_NONE); //Ö´ÐÐµ±Ç°Ë÷Òý¶ÔÓ¦µÄº¯Êý
 				Bit_num = 0;
 			}
 		}
-		else if (key_val == KEY_13_DOWN) // F2
+		else if (key_val == KEY_13_DOWN) // Çå³ý
 		{
-			string_input(input_buff, ' ', 7);
-			OLED_ShowString(40, 4, input_buff, 16);
-			Bit_num = 0;
+			data_del();
 		}
-		else if (key_val == KEY_11_DOWN) //#
+		else if (key_val == KEY_14_DOWN) //·µ»Ø
 		{
 			is_main_menu = 1;
 			OLED_Clear();
 			func_index = _S_Thickness_Input;
 			current_operation_func = table[func_index].current_operation;
-			(*current_operation_func)(func_index, KEY_NONE); //æ‰§è¡Œå½“å‰ç´¢å¼•å¯¹åº”çš„å‡½æ•°
+			(*current_operation_func)(func_index, KEY_NONE); //Ö´ÐÐµ±Ç°Ë÷Òý¶ÔÓ¦µÄº¯Êý
 		}
 		else
 		{
-			data_input(key_val);
+			data_input(key_val, 6);
 		}
 	}
 }
@@ -342,11 +339,23 @@ void Width_Input(uint8_t page_index, uint8_t key_val)
 		is_main_menu = 0;
 		OLED_Clear();
 		show_frame();
-		/*å®½åº¦ï¼š*/
+		file_name[file_name_bit] = '.';
+		++file_name_bit;
+		file_name[file_name_bit] = 'C';
+		++file_name_bit;
+		file_name[file_name_bit] = 'S';
+		++file_name_bit;
+		file_name[file_name_bit] = 'V';
+		WritetoSD(file_name, "°üºÅ,³¤¶È,ºñ¶È", 23);
+		WritetoSD(file_name, "\n", 2);
+		WritetoSD(file_name, c_Pack_ID, 10);
+		WritetoSD(file_name, ",", 2);
+		OLED_ShowString(0, 0, file_name, 8);
+		/*¿í¶È£º*/
 		OLED_ShowCHinese(0, 4, 3);
 		OLED_ShowCHinese(16, 4, 5);
 		string_input(input_buff, ' ', 7);
-		sprintf(temp, "%.2f", My_Pack.length); //ä¿ç•™å°æ•°ç‚¹åŽ3ä½å°æ•°ï¼Œæ‰“å°åˆ°Dataæ•°ç»„ä¸­
+		sprintf(temp, "%.2f", My_Pack.length); //±£ÁôÐ¡Êýµãºó3Î»Ð¡Êý£¬´òÓ¡µ½DataÊý×éÖÐ
 		OLED_ShowString(0, 1, "L:", 8);
 		OLED_ShowString(16, 1, temp, 8);
 		string_input(temp, '\0', 9);
@@ -357,8 +366,18 @@ void Width_Input(uint8_t page_index, uint8_t key_val)
 		sprintf(temp, "%.2f", My_Pack.width);
 		OLED_ShowString(0, 3, "W:", 8);
 		OLED_ShowString(16, 3, temp, 8);
-		OLED_ShowString(56, 7, "C:", 8);
+		OLED_ShowString(10, 7, "C:", 8);
+		OLED_ShowString(96, 7, "P:", 8);
 		OLED_ShowNum(72, 7, My_Pack.Pice_count, 3, 8);
+		OLED_ShowString(96, 4, "inch", 8);
+		string_input(temp, '\0', 9);
+		temp[7] = ',';
+		sprintf(temp, "%.3f", My_Pack.length);
+		WritetoSD(file_name, temp, sizeof(temp));
+		string_input(temp, '\0', 9);
+		temp[7] = '\n';
+		sprintf(temp, "%.3f", My_Pack.thickness);
+		WritetoSD(file_name, "¿í¶È\n", 8);
 	}
 	if ((key_val != KEY_NONE) && (((key_val - 1) % 3) == 0))
 	{
@@ -368,25 +387,14 @@ void Width_Input(uint8_t page_index, uint8_t key_val)
 			My_Pack.width = atof(input_buff);
 			if (My_Pack.width > 0)
 			{
-				My_Pack.Volume += My_Pack.length * My_Pack.thickness * My_Pack.width;
-
-				string_input(temp, '\0', 9);
-				temp[7] = ',';
-				sprintf(temp, "%.3f", My_Pack.length);
-			//	WritetoSD(My_Pack.Pack_File_Name, temp, sizeof(temp));
-
-				string_input(temp, '\0', 9);
-				temp[7] = ',';
-				sprintf(temp, "%.3f", My_Pack.thickness);
-				//WritetoSD(My_Pack.Pack_File_Name, temp, sizeof(temp));
-
-				//WritetoSD(My_Pack.Pack_File_Name, input_buff, sizeof(input_buff));
-				//WritetoSD(My_Pack.Pack_File_Name, "\n", sizeof(char) * 2);
-
+				My_Pack.all_width += My_Pack.width;
 				++My_Pack.Pice_count;
-				OLED_ShowNum(72, 7, My_Pack.Pice_count, 3, 8);
+				OLED_ShowNum(112, 7, My_Pack.Pice_count, 3, 8);
 
-				string_input(input_buff, '\0', 7);
+				WritetoSD(file_name, input_buff, sizeof(input_buff));
+				WritetoSD(file_name, ",", 2);
+
+				string_input(input_buff, '\0', 9);
 				sprintf(input_buff, "%.2f", My_Pack.width);
 				OLED_ShowString(16, 3, input_buff, 8);
 
@@ -395,25 +403,29 @@ void Width_Input(uint8_t page_index, uint8_t key_val)
 				Bit_num = 0;
 			}
 		}
-		else if (key_val == KEY_13_DOWN) // F2
+		else if (key_val == KEY_13_DOWN) // Çå³ý
 		{
-			string_input(input_buff, ' ', 7);
-			OLED_ShowString(40, 4, input_buff, 16);
-			Bit_num = 0;
+			data_del();
 		}
-		else if (key_val == KEY_11_DOWN) //#
+		else if (key_val == KEY_15_DOWN) //»Ø³µ
+		{
+			My_Pack.ceng++;
+			OLED_ShowNum(26, 7, My_Pack.ceng, 3, 8);
+			WritetoSD(file_name, "\n", 2);
+		}
+		else if (key_val == KEY_11_DOWN) //=
 		{
 			is_main_menu = 1;
-			sprintf(My_Pack.All_Volume, "%.3f", My_Pack.Volume); //ä¿ç•™å°æ•°ç‚¹åŽ3ä½å°æ•°ï¼Œæ‰“å°åˆ°Dataæ•°ç»„ä¸­
-			//WritetoSD(My_Pack.Pack_File_Name, My_Pack.All_Volume, sizeof(My_Pack.All_Volume));
+			sprintf(My_Pack.All_Volume, "%.3f", My_Pack.Volume); //±£ÁôÐ¡Êýµãºó3Î»Ð¡Êý£¬´òÓ¡µ½DataÊý×éÖÐ
+			// WritetoSD(My_Pack.Pack_File_Name, My_Pack.All_Volume, sizeof(My_Pack.All_Volume));
 			OLED_Clear();
 			func_index = _Volume;
 			current_operation_func = table[func_index].current_operation;
-			(*current_operation_func)(func_index, KEY_NONE); //æ‰§è¡Œå½“å‰ç´¢å¼•å¯¹åº”çš„å‡½æ•°
+			(*current_operation_func)(func_index, KEY_NONE); //Ö´ÐÐµ±Ç°Ë÷Òý¶ÔÓ¦µÄº¯Êý
 		}
 		else
 		{
-			data_input(key_val);
+			data_input(key_val, 6);
 		}
 	}
 }
@@ -423,7 +435,7 @@ void Volume_show(uint8_t page_index, uint8_t key_val)
 	{
 		OLED_Clear();
 		show_frame();
-		/*ä½“ç§¯ï¼š*/
+		/*Ìå»ý£º*/
 		OLED_ShowCHinese(0, 4, 6);
 		OLED_ShowCHinese(16, 4, 7);
 		OLED_ShowString(40, 4, My_Pack.All_Volume, 16);
@@ -438,14 +450,14 @@ void Volume_show(uint8_t page_index, uint8_t key_val)
 			OLED_Clear();
 			func_index = _S_Volume;
 			current_operation_func = table[func_index].current_operation;
-			(*current_operation_func)(func_index, KEY_NONE); //æ‰§è¡Œå½“å‰ç´¢å¼•å¯¹åº”çš„å‡½æ•°
+			(*current_operation_func)(func_index, KEY_NONE); //Ö´ÐÐµ±Ç°Ë÷Òý¶ÔÓ¦µÄº¯Êý
 		}
 		else if (key_val == KEY_12_DOWN)
 		{
 			OLED_Clear();
 			func_index = _Pack_ID;
 			current_operation_func = table[func_index].current_operation;
-			(*current_operation_func)(func_index, KEY_NONE); //æ‰§è¡Œå½“å‰ç´¢å¼•å¯¹åº”çš„å‡½æ•°
+			(*current_operation_func)(func_index, KEY_NONE); //Ö´ÐÐµ±Ç°Ë÷Òý¶ÔÓ¦µÄº¯Êý
 		}
 	}
 }
@@ -458,14 +470,14 @@ void string_input(uint8_t string_buff[], uint8_t char_input, uint8_t n)
 }
 void show_frame(void)
 {
-	OLED_ShowString(0, 0, My_Pack.Pack_File_Name, 8);
+	// OLED_ShowString(0, 0, My_Pack.Pack_File_Name, 8);
 	OLED_ShowString(32, 4, ":", 16);
 }
-void data_input(uint8_t key_val)
+void data_input(uint8_t key_val, uint8_t max_bit_num)
 {
-	if (Bit_num > 6)
+	if (Bit_num >= max_bit_num)
 	{
-		Bit_num = 6;
+		Bit_num = max_bit_num - 1;
 	}
 	if (key_val == KEY_10_DOWN)
 	{
@@ -475,7 +487,16 @@ void data_input(uint8_t key_val)
 	{
 		input_buff[Bit_num] = (key_val - 1) / 3 + '0';
 	}
-
 	OLED_ShowString(48, 4, input_buff, 16);
 	++Bit_num;
+}
+void data_del(void)
+{
+	if (Bit_num == 0)
+	{
+		Bit_num = 1;
+	}
+	Bit_num--;
+	input_buff[Bit_num] = ' ';
+	OLED_ShowString(48, 4, input_buff, 16);
 }

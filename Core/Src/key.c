@@ -183,7 +183,7 @@ static uint8_t IsKeyDown12(void) //F1 确认
 	else
 		return 0;
 }
-static uint8_t IsKeyDown13(void) // F2 UP
+static uint8_t IsKeyDown13(void) //  UP 清除
 {
 
 	if ((GPIOA->IDR & I2_Pin) == 0)
@@ -486,9 +486,9 @@ for (i = 0; i < KEY_COUNT; i++)
 }
 void beep(void)
 {
-//	HAL_GPIO_WritePin(Buzzer_GPIO_Port, Buzzer_Pin, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(Buzzer_GPIO_Port, Buzzer_Pin, GPIO_PIN_SET);
 //	HAL_Delay(50);
-//	HAL_GPIO_WritePin(Buzzer_GPIO_Port, Buzzer_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(Buzzer_GPIO_Port, Buzzer_Pin, GPIO_PIN_RESET);
 }
 
 void power_check(uint16_t *tcount)
