@@ -527,6 +527,7 @@ void WritetoSD(char file_name[], uint8_t write_buff[], uint8_t bufSize)
 		else
 		{
 			OLED_ShowString(0, 0, "write fail", 16);
+
 			// printf("�ļ�д��ʧ�ܣ� \r\n");
 		}
 	}
@@ -536,5 +537,5 @@ void WritetoSD(char file_name[], uint8_t write_buff[], uint8_t bufSize)
 		// printf("���ļ�ʧ��!\r\n");
 	}
 	f_close(&file); //�ر��ļ�
-	 //f_mount(NULL, "0:", 1); //ȡ������
+					// f_mount(NULL, "0:", 1); //ȡ������
 }
