@@ -28,7 +28,7 @@ static void (*current_operation_func)(uint8_t, uint8_t); //定义一个函数指针
 Main_Menu table[12] =
 	{
 		// Cur_Index,        previous,       next,            enter,          back,   (*current_operation)(u8,u8)
-		{_S_Pack_ID, _S_Volume, _S_Length_Input, _Pack_ID, _S_Pack_ID, S_Pack_ID},
+		{_S_Pack_ID, _S_Pack_ID, _S_Pack_ID, _Pack_ID, _S_Pack_ID, S_Pack_ID},
 		{_S_Length_Input, _S_Pack_ID, _S_Thickness_Input, _Length_Input, _S_Pack_ID, S_Length_Input},
 		{_S_Thickness_Input, _S_Length_Input, _S_Width_Input, _Thickness_Input, _S_Pack_ID, S_Thickness_Input},
 		{_S_Width_Input, _S_Thickness_Input, _S_Volume, _Width_Input, _S_Pack_ID, S_Width_Input},
@@ -266,7 +266,7 @@ void Length_Input(uint8_t page_index, uint8_t key_val)
 								file_name_bit += i;
 								file_name[file_name_bit] = '-';
 								++file_name_bit; */
-				WritetoSD(file_name, "\n ,Thickness,Length\n", 21);
+				WritetoSD(file_name, "\n,厚,长\n", 10);
 				input_buff[Bit_num] = ',';
 				++Bit_num;
 				WritetoSD(file_name, input_buff, Bit_num);
@@ -443,7 +443,7 @@ void short_Input(uint8_t page_index, uint8_t key_val)
 		OLED_ShowCHinese(16, 2, 9);
 		OLED_ShowCHinese(32, 2, 2);
 		OLED_ShowCHinese(48, 2, 5);
-		WritetoSD(file_name, "\nCount,Width\n", 14);
+		WritetoSD(file_name, "\nPCount,总宽\n", 15);
 		string_input(temp, '\0', 9);
 		sprintf(temp, "%d", My_Pack.Pice_count);
 		WritetoSD(file_name, temp, sizeof(temp));
@@ -453,7 +453,7 @@ void short_Input(uint8_t page_index, uint8_t key_val)
 		WritetoSD(file_name, temp, sizeof(temp));
 		/*短板：*/
 		OLED_ShowString(2, 0, file_name, 8);
-		WritetoSD(file_name, "\nSlen,Snum\n", 11);
+		WritetoSD(file_name, "\nSlen,短板数\n", 16);
 		string_input(input_buff, '\0', 10);
 	}
 	if ((key_val != KEY_NONE) && (((key_val - 1) % 3) == 0))
@@ -565,7 +565,7 @@ void Volume_show(uint8_t page_index, uint8_t key_val)
 		if (key_val == KEY_14_DOWN)
 		{
 			OLED_Clear();
-			func_index = _S_Volume;
+			func_index = _S_Pack_ID;
 			current_operation_func = table[func_index].current_operation;
 			(*current_operation_func)(func_index, KEY_NONE); //执行当前索引对应的函数
 		}
