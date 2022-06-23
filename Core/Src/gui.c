@@ -306,7 +306,7 @@ void Thickness_Input(uint8_t page_index, uint8_t key_val)
 		/*厚度：*/
 		OLED_ShowCHinese(0, 4, 4);
 		OLED_ShowCHinese(16, 4, 5);
-		OLED_ShowString(96, 5, "inch", 8);
+		OLED_ShowString(96, 4, "inch", 8);
 		OLED_ShowString(0, 0, file_name, 8);
 		string_input(input_buff, '\0', 10);
 	}
@@ -372,8 +372,10 @@ void Width_Input(uint8_t page_index, uint8_t key_val)
 		OLED_ShowString(16, 1, temp, 8);
 		string_input(temp, '\0', 9);
 		sprintf(temp, "%.2f", My_Pack.thickness);
-		OLED_ShowString(0, 2, "H:", 8);
-		OLED_ShowString(16, 2, temp, 8);
+		//OLED_ShowString(0, 2, "H:", 8);
+		OLED_ShowString(64, 1, "H:", 8);
+		OLED_ShowString(80, 1, temp, 8);
+		//OLED_ShowString(16, 2, temp, 8);
 		string_input(temp, '\0', 9);
 		sprintf(temp, "%.2f", My_Pack.width);
 		OLED_ShowString(0, 3, "W:", 8);
@@ -443,6 +445,7 @@ void short_Input(uint8_t page_index, uint8_t key_val)
 		OLED_ShowCHinese(16, 2, 9);
 		OLED_ShowCHinese(32, 2, 2);
 		OLED_ShowCHinese(48, 2, 5);
+		OLED_ShowString(64, 2, ":", 16);
 		WritetoSD(file_name, "\nPCount,总宽\n", 15);
 		string_input(temp, '\0', 9);
 		sprintf(temp, "%d", My_Pack.Pice_count);
@@ -502,6 +505,7 @@ void short_num_Input(uint8_t page_index, uint8_t key_val)
 		OLED_ShowCHinese(0, 2, 8);
 		OLED_ShowCHinese(16, 2, 9);
 		OLED_ShowCHinese(32, 2, 10);
+		OLED_ShowString(48, 2, ":", 16);
 		OLED_ShowString(2, 0, file_name, 8);
 		string_input(input_buff, '\0', 10);
 	}
@@ -547,15 +551,22 @@ void Volume_show(uint8_t page_index, uint8_t key_val)
 	{
 		key_val = KEY_NONE;
 		bsp_GetKey();
-		show_frame();
+		OLED_ShowString(32, 0, ":", 16);
 		/*体积：*/
-		OLED_ShowCHinese(0, 4, 6);
-		OLED_ShowCHinese(16, 4, 7);
+		OLED_ShowCHinese(0, 0, 6);
+		OLED_ShowCHinese(16, 0, 7);
 		My_Pack.Volume = My_Pack.all_width * My_Pack.length / 12 - My_Pack.all_width / My_Pack.Pice_count * My_Pack.short_Pice_count / 12;
 		sprintf(My_Pack.All_Volume, "%.3f", My_Pack.Volume); //保留小数点后3位小数，打印到Data数组中
 
-		OLED_ShowString(40, 4, My_Pack.All_Volume, 16);
+		OLED_ShowString(16, 4, My_Pack.All_Volume, 16);
+		OLED_ShowString(100, 4, "MBF", 16);
 		WritetoSD(file_name, My_Pack.All_Volume, sizeof(My_Pack.All_Volume));
+		
+		My_Pack.Volume=My_Pack.Volume*2.36/1000;
+		string_input(My_Pack.All_Volume, '\0', 20);
+		sprintf(My_Pack.All_Volume, "%.3f", My_Pack.Volume); //保留小数点后3位小数，打印到Data数组中
+		OLED_ShowString(16, 6, My_Pack.All_Volume, 16);
+		OLED_ShowString(100, 6, "M^3", 16);
 		is_main_menu = 0;
 	}
 	if ((key_val != KEY_NONE) && (((key_val - 1) % 3) == 0))
