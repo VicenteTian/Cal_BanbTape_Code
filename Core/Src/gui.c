@@ -13,6 +13,7 @@ __IO uint8_t is_main_menu = 1;
 __IO uint8_t is_show = 0;
 Package My_Pack = {0, 0, 0, 0, 0, 0, 0, 0, 0, " "};
 char c_Pack_ID[10] = {0};
+__IO char width_buff[10] = {0};
 char file_name[9] = {0};
 __IO uint8_t file_name_bit = 0;
 char input_buff[10] = {0};
@@ -372,13 +373,14 @@ void Width_Input(uint8_t page_index, uint8_t key_val)
 		OLED_ShowString(16, 1, temp, 8);
 		string_input(temp, '\0', 9);
 		sprintf(temp, "%.2f", My_Pack.thickness);
-		//OLED_ShowString(0, 2, "H:", 8);
+		// OLED_ShowString(0, 2, "H:", 8);
 		OLED_ShowString(64, 1, "H:", 8);
 		OLED_ShowString(80, 1, temp, 8);
-		//OLED_ShowString(16, 2, temp, 8);
+		// OLED_ShowString(16, 2, temp, 8);
 		string_input(temp, '\0', 9);
 		sprintf(temp, "%.2f", My_Pack.width);
 		OLED_ShowString(0, 3, "W:", 8);
+		OLED_ShowString(0, 2, "S:", 8);
 		OLED_ShowString(16, 3, temp, 8);
 		OLED_ShowString(10, 7, "C:", 8);
 		OLED_ShowNum(26, 7, My_Pack.ceng, 3, 8);
@@ -395,24 +397,47 @@ void Width_Input(uint8_t page_index, uint8_t key_val)
 			My_Pack.width = atof(input_buff);
 			if (My_Pack.width > 0)
 			{
-				My_Pack.all_width += My_Pack.width;
-				++My_Pack.Pice_count;
-				OLED_ShowNum(112, 7, My_Pack.Pice_count, 3, 8);
+				OLED_ShowString(16, 3, "      ", 8);
+				OLED_ShowString(16, 3, input_buff, 8);
 				input_buff[Bit_num] = ',';
 				++Bit_num;
-				WritetoSD(file_name, input_buff, Bit_num);
-				string_input(input_buff, '\0', 9);
-				sprintf(input_buff, "%.2f", My_Pack.width);
-				OLED_ShowString(16, 3, input_buff, 8);
+				++My_Pack.Pice_count;
+				OLED_ShowString(16, 2, "       ", 8);
+				OLED_ShowString(16, 2, width_buff, 8);
+				OLED_ShowNum(112, 7, My_Pack.Pice_count, 3, 8);
+				if (My_Pack.Pice_count > 1)
+				{
+					My_Pack.all_width += atof(width_buff);
+					WritetoSD(file_name, width_buff, width_buff[9]);
+					string_input(width_buff, '\0', 10);
+				}
+				for (uint8_t i = 0; i < Bit_num; i++)
+				{
+					width_buff[i] = input_buff[i];
+				}
+				width_buff[9] = Bit_num;
+				string_input(input_buff, '\0', 10);
+				// sprintf(input_buff, "%.2f", My_Pack.width);
+				// OLED_ShowString(16, 3, input_buff, 8);
 
-				string_input(input_buff, ' ', 7);
-				OLED_ShowString(48, 4, input_buff, 16);
+				// string_input(input_buff, ' ', 7);
+				OLED_ShowString(48, 4, "      ", 16);
 				Bit_num = 0;
 			}
 		}
 		else if (key_val == KEY_13_DOWN) // 清除
 		{
 			data_del();
+		}
+		else if (key_val == KEY_14_DOWN) // 返回
+		{
+			if (My_Pack.Pice_count > 0)
+			{
+				--My_Pack.Pice_count;
+				OLED_ShowNum(112, 7, My_Pack.Pice_count, 3, 8);
+				OLED_ShowString(16, 3, "       ", 8);
+			}
+			string_input(width_buff, '\0', 10);
 		}
 		else if (key_val == KEY_15_DOWN) //回车
 		{
@@ -422,6 +447,7 @@ void Width_Input(uint8_t page_index, uint8_t key_val)
 		}
 		else if (key_val == KEY_11_DOWN) //=
 		{
+			My_Pack.all_width += atof(width_buff);
 			is_main_menu = 1;
 			func_index = _short_Input;
 			current_operation_func = table[func_index].current_operation;
@@ -440,6 +466,7 @@ void short_Input(uint8_t page_index, uint8_t key_val)
 	{
 		uint8_t temp[9] = {0};
 		is_main_menu = 0;
+		WritetoSD(file_name, width_buff, width_buff[0]);
 		OLED_Clear();
 		OLED_ShowCHinese(0, 2, 8);
 		OLED_ShowCHinese(16, 2, 9);
@@ -561,8 +588,8 @@ void Volume_show(uint8_t page_index, uint8_t key_val)
 		OLED_ShowString(16, 4, My_Pack.All_Volume, 16);
 		OLED_ShowString(100, 4, "MBF", 16);
 		WritetoSD(file_name, My_Pack.All_Volume, sizeof(My_Pack.All_Volume));
-		
-		My_Pack.Volume=My_Pack.Volume*2.36/1000;
+
+		My_Pack.Volume = My_Pack.Volume * 2.36 / 1000;
 		string_input(My_Pack.All_Volume, '\0', 20);
 		sprintf(My_Pack.All_Volume, "%.3f", My_Pack.Volume); //保留小数点后3位小数，打印到Data数组中
 		OLED_ShowString(16, 6, My_Pack.All_Volume, 16);
