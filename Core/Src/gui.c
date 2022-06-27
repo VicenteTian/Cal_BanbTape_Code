@@ -303,11 +303,14 @@ void Thickness_Input(uint8_t page_index, uint8_t key_val)
 	{
 		is_main_menu = 0;
 		OLED_Clear();
-		show_frame();
+		OLED_ShowString(32, 4, ":", 16);
 		/*ºñ¶È£º*/
 		OLED_ShowCHinese(0, 4, 4);
 		OLED_ShowCHinese(16, 4, 5);
 		OLED_ShowString(96, 4, "inch", 8);
+		OLED_ShowString(0, 1, "3/4=0.75 4/4=1", 8);
+		OLED_ShowString(0, 2, "5/4=1.25 6/4=1.5", 8);
+		OLED_ShowString(0, 3, "7/4=1.75 8/4=2", 8);
 		OLED_ShowString(0, 0, file_name, 8);
 		string_input(input_buff, '\0', 10);
 	}
